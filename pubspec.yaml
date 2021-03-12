@@ -1,0 +1,40 @@
+name: location_tracker
+description: Live Location Tracking
+
+publish_to:
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.0
+  location:
+  http:
+  provider:
+  google_fonts:
+  maps_launcher:
+  image_picker:
+  hive:
+  path_provider:
+  hive_flutter:
+  shimmer:
+  material_design_icons_flutter:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  hive_generator:
+  build_runner:
+
+
+flutter:
+
+  uses-material-design: true
+  assets:
+    - images/
+
+
