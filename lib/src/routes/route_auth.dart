@@ -22,6 +22,8 @@ class AuthRoute extends StatelessWidget {
         body: InkWell(
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          hoverColor: Colors.transparent,
           onTap: () {
             FocusScope.of(context).requestFocus(FocusNode());
           },
@@ -31,18 +33,17 @@ class AuthRoute extends StatelessWidget {
               physics: ScrollPhysics(),
               scrollDirection: Axis.vertical,
               children: [
-                Icon(
-                  Icons.architecture,
-                  size: 72,
-                  color: themeProvider.accentColor,
-                ),
+                Image.asset("images/logo.png", fit: BoxFit.contain, width: 72, height: 72,),
                 SizedBox(
                   height: 12,
                 ),
-                Text("Welcome",
-                    style: TextStyles.title(
-                        context: context, color: themeProvider.accentColor),
-                    textAlign: TextAlign.center),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text("Jamuna Electronics & Automobiles shop plotting Login",
+                      style: TextStyles.subTitle(
+                          context: context, color: themeProvider.accentColor),
+                      textAlign: TextAlign.center),
+                ),
                 SizedBox(
                   height: 12,
                 ),

@@ -16,13 +16,17 @@ dependencies:
   http:
   provider:
   google_fonts:
+  url_launcher:
   maps_launcher:
+  cached_network_image:
   image_picker:
   hive:
   path_provider:
   hive_flutter:
   shimmer:
   material_design_icons_flutter:
+  intl:
+  data_connection_checker:
 
 dev_dependencies:
   flutter_test:

@@ -4,6 +4,9 @@ class FloatingPoint {
   String shopName;
   String ownerName;
   String ownerPhone;
+  String city;
+  String district;
+  bool isDealer;
   double lat;
   double lng;
 
@@ -15,7 +18,15 @@ class FloatingPoint {
     shopName = map["ShopName"];
     ownerName = map["OwnerName"];
     ownerPhone = map["OwnerPhone"];
-    lat = double.parse(map["Lat"]);
-    lng = double.parse(map["Lng"]);
+    city = map["City"];
+    district = map["District"];
+    isDealer = map["IsDealer"]?? false;
+    try {
+      lat = double.parse(map["Lat"]) ?? 0;
+      lng = double.parse(map["Lng"]) ?? 0;
+    } catch (error) {
+      lat = 0;
+      lng = 0;
+    }
   }
 }

@@ -1,26 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:location_tracker/src/model/db/point.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/provider/provider_auth.dart';
+import 'package:location_tracker/src/provider/provider_internet.dart';
 import 'package:location_tracker/src/provider/provider_theme.dart';
 import 'package:location_tracker/src/provider/provider_user.dart';
-import 'package:location_tracker/src/routes/home_route.dart';
+import 'package:location_tracker/src/routes/route_floating_point_details.dart';
+import 'package:location_tracker/src/routes/route_history.dart';
+import 'package:location_tracker/src/routes/route_home.dart';
 import 'package:location_tracker/src/routes/route_auth.dart';
 import 'package:location_tracker/src/widgets/history/widget_user_history.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+
+import 'src/provider/provider_floating_point.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   Hive.registerAdapter(UserAdapter());
+  Hive.registerAdapter(PointAdapter());
   runApp(
     MultiProvider(child: MyApp(), providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
+      ChangeNotifierProvider(create: (context) => InternetProvider()),
       ChangeNotifierProvider(create: (context) => AuthProvider()),
       ChangeNotifierProvider(create: (context) => UserProvider()),
+      ChangeNotifierProvider(create: (context) => FloatingPointProvider()),
     ]),
   );
 }
@@ -30,7 +39,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
-      title: 'Jamuna Dealer',
+      title: 'Jamuna Electronics & Automobiles',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: themeProvider.accentColor,
@@ -61,6 +70,8 @@ class MyApp extends StatelessWidget {
         AuthRoute().route: (context) => AuthRoute(),
         HomeRoute().route: (context) => HomeRoute(),
         UserHistoryWidget().route: (context) => UserHistoryWidget(),
+        HistoryRoute().route: (context) => HistoryRoute(),
+        FloatingPointDetailsRoute().route: (context) => FloatingPointDetailsRoute(),
       },
     );
   }
@@ -105,6 +116,7 @@ class _LauncherRouteState extends State<LauncherRoute> {
   redirect() async {
     try {
       Box<User> userBox = await Hive.openBox("users");
+      Box<Point> pointBox = await Hive.openBox("points");
       User user;
       if (userBox.length > 0) {
         user = userBox.getAt(0);

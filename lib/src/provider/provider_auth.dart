@@ -56,8 +56,6 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<Response> userInfo() async {
-    init();
-
     Map<String, String> headerParams = {
       "authorization": user.token,
       "username": user.username != null && user.username.isNotEmpty

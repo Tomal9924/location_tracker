@@ -24,6 +24,7 @@ const List<Color> themeColors = [
 ];
 
 const int tableUser = 0;
+const int tablePoint = 1;
 
 ///------------------------User Table------------------------
 final String userId = "id";

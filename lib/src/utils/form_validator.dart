@@ -17,9 +17,8 @@ class FormValidator {
   validate() {
     switch (type) {
       case FormType.name:
-        if (controller.text.isEmpty) {
-          isValid = false;
-        }
+        isValid = controller.text.isNotEmpty;
+        validationMessage = isValid ? null : "***required";
         break;
       case FormType.phone:
         // TODO: Handle this case.
