@@ -5,12 +5,13 @@ import 'package:location_tracker/src/model/db/point.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/provider/provider_auth.dart';
 import 'package:location_tracker/src/provider/provider_internet.dart';
+import 'package:location_tracker/src/provider/provider_lookup.dart';
 import 'package:location_tracker/src/provider/provider_theme.dart';
 import 'package:location_tracker/src/provider/provider_user.dart';
+import 'package:location_tracker/src/routes/route_auth.dart';
 import 'package:location_tracker/src/routes/route_floating_point_details.dart';
 import 'package:location_tracker/src/routes/route_history.dart';
-import 'package:location_tracker/src/routes/route_home.dart';
-import 'package:location_tracker/src/routes/route_auth.dart';
+import 'package:location_tracker/src/routes/route_home_copy.dart';
 import 'package:location_tracker/src/widgets/history/widget_user_history.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => AuthProvider()),
       ChangeNotifierProvider(create: (context) => UserProvider()),
       ChangeNotifierProvider(create: (context) => FloatingPointProvider()),
+      ChangeNotifierProvider(create: (context) => LookUpProvider()),
     ]),
   );
 }
@@ -54,21 +56,18 @@ class MyApp extends StatelessWidget {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             primary: themeProvider.accentColor,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             elevation: 3,
           ),
         ),
         iconTheme: IconThemeData(color: themeProvider.textColor, size: 24),
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        appBarTheme: AppBarTheme(
-            iconTheme: IconThemeData(color: themeProvider.accentColor),
-            actionsIconTheme: IconThemeData(color: themeProvider.accentColor)),
+        appBarTheme: AppBarTheme(iconTheme: IconThemeData(color: themeProvider.accentColor), actionsIconTheme: IconThemeData(color: themeProvider.accentColor)),
       ),
       home: LauncherRoute(),
       routes: {
         AuthRoute().route: (context) => AuthRoute(),
-        HomeRoute().route: (context) => HomeRoute(),
+        HomeRouteCopy().route: (context) => HomeRouteCopy(),
         UserHistoryWidget().route: (context) => UserHistoryWidget(),
         HistoryRoute().route: (context) => HistoryRoute(),
         FloatingPointDetailsRoute().route: (context) => FloatingPointDetailsRoute(),
@@ -124,7 +123,7 @@ class _LauncherRouteState extends State<LauncherRoute> {
       Navigator.of(context).pushReplacementNamed(user == null
           ? AuthRoute().route
           : user.isAuthenticated ?? false
-              ? HomeRoute().route
+              ? HomeRouteCopy().route
               : AuthRoute().route);
     } catch (error) {
       Navigator.of(context).pushReplacementNamed(AuthRoute().route);

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:location_tracker/src/provider/provider_auth.dart';
 import 'package:location_tracker/src/provider/provider_theme.dart';
-import 'package:location_tracker/src/routes/route_home.dart';
+import 'package:location_tracker/src/routes/route_home_copy.dart';
 import 'package:location_tracker/src/utils/constants.dart';
 import 'package:location_tracker/src/utils/form_validator.dart';
 import 'package:location_tracker/src/utils/loading.dart';
@@ -62,14 +62,13 @@ class _AuthFormState extends State<AuthForm> {
               prefixIcon: Icon(Icons.person, color: usernameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
               contentPadding: EdgeInsets.all(16),
               hintText: "username",
-              hintStyle: TextStyles.body(context: context, color: usernameValidator.isValid ? themeProvider.shadowColor : themeProvider.errorColor.withOpacity(.25)),
+              hintStyle:
+                  TextStyles.body(context: context, color: usernameValidator.isValid ? themeProvider.shadowColor : themeProvider.errorColor.withOpacity(.25)),
               helperText: usernameValidator.validationMessage,
               helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
             ),
           ),
-          SizedBox(
-                          height: 16
-                        ),
+          SizedBox(height: 16),
           TextField(
             controller: passwordController,
             keyboardType: TextInputType.text,
@@ -90,7 +89,8 @@ class _AuthFormState extends State<AuthForm> {
               prefixIcon: Icon(Icons.lock, color: passwordValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
               contentPadding: EdgeInsets.all(16),
               hintText: "password",
-              hintStyle: TextStyles.body(context: context, color: passwordValidator.isValid ? themeProvider.shadowColor : themeProvider.errorColor.withOpacity(.25)),
+              hintStyle:
+                  TextStyles.body(context: context, color: passwordValidator.isValid ? themeProvider.shadowColor : themeProvider.errorColor.withOpacity(.25)),
               helperText: passwordValidator.validationMessage,
               helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
               suffixIcon: IconButton(
@@ -131,15 +131,15 @@ class _AuthFormState extends State<AuthForm> {
                         switch (userResponse.statusCode) {
                           case 200:
                             floatingPointProvider.destroy();
-                            Navigator.of(context).pushReplacementNamed(HomeRoute().route, arguments: authProvider.user.guid);
+                            Navigator.of(context).pushReplacementNamed(HomeRouteCopy().route, arguments: authProvider.user.guid);
                             break;
                           default:
                             showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: Text("Profile fetching Error"),
-                                  content: Text(userResponse.body),
-                                ));
+                                      title: Text("Profile fetching Error"),
+                                      content: Text(userResponse.body),
+                                    ));
                             break;
                         }
                         break;
@@ -148,9 +148,9 @@ class _AuthFormState extends State<AuthForm> {
                         showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: Text("Auth Error"),
-                              content: Text(authResponse.body),
-                            ));
+                                  title: Text("Auth Error"),
+                                  content: Text(authResponse.body),
+                                ));
                         break;
                     }
                   } catch (error) {

@@ -7,4 +7,7 @@ class Api {
   static String get floatingPoints => "$_baseUrl/api/GetFloatingPointByUserId";
   static String get floatingPointsDetails => "$_baseUrl/api/GetFloatingPointById";
   static String fileUrl(String path) => "$_baseUrl$path";
+
+  static String get lookUpRugShape => "RugShape";
+  static String get lookUp => "$_baseUrl/api/GetLookupItems";
 }

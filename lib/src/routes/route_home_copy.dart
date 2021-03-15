@@ -2,37 +2,79 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
+import 'package:location_tracker/src/model/competitior.dart';
 import 'package:location_tracker/src/model/db/point.dart';
+import 'package:location_tracker/src/model/drop_down_item.dart';
 import 'package:location_tracker/src/provider/provider_auth.dart';
 import 'package:location_tracker/src/provider/provider_internet.dart';
+import 'package:location_tracker/src/provider/provider_lookup.dart';
 import 'package:location_tracker/src/provider/provider_theme.dart';
 import 'package:location_tracker/src/provider/provider_user.dart';
 import 'package:location_tracker/src/routes/route_auth.dart';
 import 'package:location_tracker/src/routes/route_history.dart';
+import 'package:location_tracker/src/utils/api.dart';
 import 'package:location_tracker/src/utils/constants.dart';
 import 'package:location_tracker/src/utils/form_validator.dart';
 import 'package:location_tracker/src/utils/text_styles.dart';
 import 'package:location_tracker/src/widgets/home/widget_sync_now.dart';
+import 'package:location_tracker/src/widgets/widget_custom_dropdown.dart';
+import 'package:location_tracker/src/widgets/widget_dropdown.dart';
 import 'package:location_tracker/src/widgets/widget_multi_select_dropdown.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:provider/provider.dart';
 
-class HomeRoute extends StatefulWidget {
-  final String route = "/home";
+class HomeRouteCopy extends StatefulWidget {
+  final String route = "/home_copy";
 
   @override
-  _HomeRouteState createState() => _HomeRouteState();
+  _HomeRouteCopyState createState() => _HomeRouteCopyState();
 }
 
-class _HomeRouteState extends State<HomeRoute> {
+class _HomeRouteCopyState extends State<HomeRouteCopy> {
   final picker = ImagePicker();
   bool isLoading = true;
   String routeDay = "";
-
+  String shape = "";
   List<File> files = [];
+  List<Competitor> competitorsList = [];
   bool isDealer = false;
+  List<DropDownItem> dealerTypes = [
+    DropDownItem(text: "Dealer", value: "dealer"),
+    DropDownItem(text: "Sub-Dealer", value: "sub_dealer"),
+    DropDownItem(text: "Shop", value: "shop"),
+  ];
+  List<DropDownItem> dealerListNames = [
+    DropDownItem(text: "Jack", value: "jack"),
+    DropDownItem(text: "Smith", value: "smith"),
+    DropDownItem(text: "John", value: "john"),
+    DropDownItem(text: "Dummy", value: "Dummy"),
+  ];
+  List<DropDownItem> shopType = [
+    DropDownItem(text: "Registered", value: "Registered"),
+    DropDownItem(text: "Cash Retailer", value: "Cash Retailer"),
+    DropDownItem(text: "Adhoc", value: "Adhoc"),
+    DropDownItem(text: "Not Application", value: "Not Application"),
+  ];
+  List<DropDownItem> subDealerItems = [
+    DropDownItem(text: "Harun", value: "Harun"),
+    DropDownItem(text: "Nikolas", value: "Nikolas"),
+    DropDownItem(text: "Raju", value: "Raju"),
+    DropDownItem(text: "Mina", value: "Mina"),
+  ];
+  List<DropDownItem> _competitorItems = [
+    DropDownItem(text: "Walton", value: "walton"),
+    DropDownItem(text: "Vision", value: "vision"),
+    DropDownItem(text: "Marcel", value: "marcel"),
+    DropDownItem(text: "Minister", value: "minister"),
+  ];
+  String _selectedTypes = "";
+  String _selectedDealerListItems = "";
+  String _selectedSubDealerListItems = "";
+  String _selectedShopTypes = "";
   TextEditingController shopNameController = new TextEditingController();
   TextEditingController ownerNameController = new TextEditingController();
   TextEditingController ownerPhoneController = new TextEditingController();
@@ -40,9 +82,9 @@ class _HomeRouteState extends State<HomeRoute> {
   TextEditingController cityController = new TextEditingController();
   TextEditingController districtController = new TextEditingController();
   TextEditingController routeNameController = new TextEditingController();
-  TextEditingController waltonTVController = new TextEditingController();
+  TextEditingController tVController = new TextEditingController();
   TextEditingController waltonRFController = new TextEditingController();
-  TextEditingController visionTVController = new TextEditingController();
+  TextEditingController rfController = new TextEditingController();
   TextEditingController visionRFController = new TextEditingController();
   TextEditingController marcelTVController = new TextEditingController();
   TextEditingController ministerRFController = new TextEditingController();
@@ -52,6 +94,8 @@ class _HomeRouteState extends State<HomeRoute> {
   TextEditingController showRoomSizeController = new TextEditingController();
   TextEditingController displayOutController = new TextEditingController();
   TextEditingController displayInController = new TextEditingController();
+  TextEditingController acController = new TextEditingController();
+  TextEditingController shopController = new TextEditingController();
 
   FormValidator shopValidator = FormValidator();
   FormValidator routeNameValidator = FormValidator();
@@ -86,9 +130,11 @@ class _HomeRouteState extends State<HomeRoute> {
     final internetProvider = Provider.of<InternetProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
     final userProvider = Provider.of<UserProvider>(context);
+    final lookUpProvider = Provider.of<LookUpProvider>(context);
     authProvider.init();
     userProvider.init();
     internetProvider.listen();
+    lookUpProvider.init();
     return Scaffold(
       backgroundColor: themeProvider.backgroundColor,
       appBar: AppBar(
@@ -167,21 +213,81 @@ class _HomeRouteState extends State<HomeRoute> {
                           ),
                         ),
                         SizedBox(height: 16),
-                        Text("Route Name *",
-                            style:
-                                TextStyles.caption(context: context, color: routeNameValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("District *",
+                                      style: TextStyles.caption(
+                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  SizedBox(
+                                    height: 4,
+                                  ),
+                                  CustomDropDownMenu(
+                                    onSelect: (value) {
+                                      setState(() {
+                                        shape = value;
+                                      });
+                                    },
+                                    title: "Choose an shape",
+                                    keyword: Api.lookUpRugShape,
+                                    value: shape,
+                                    text: lookUpProvider.displayText(Api.lookUpRugShape, shape),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Thana *",
+                                      style: TextStyles.caption(
+                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  SizedBox(
+                                    height: 4,
+                                  ),
+                                  CustomDropDownMenu(
+                                    onSelect: (value) {
+                                      setState(() {
+                                        shape = value;
+                                      });
+                                    },
+                                    title: "Choose an shape",
+                                    keyword: Api.lookUpRugShape,
+                                    value: shape,
+                                    text: lookUpProvider.displayText(Api.lookUpRugShape, shape),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        //city---------------------------
+                        Text("City/village *",
+                            style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
-                          controller: routeNameController,
-                          focusNode: routeNameFocusNode,
-                          keyboardType: TextInputType.text,
-                          style: TextStyles.body(context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
-                          cursorColor: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
+                          controller: cityController,
+                          focusNode: cityFocusNode,
+                          keyboardType: TextInputType.name,
+                          style: TextStyles.body(context: context, color: cityValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
+                          cursorColor: cityValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
                           textInputAction: TextInputAction.next,
                           onChanged: (value) {
-                            if (!routeNameValidator.isValid) {
+                            if (!cityValidator.isValid) {
                               setState(() {
-                                routeNameValidator.validate();
+                                cityValidator.validate();
                               });
                             }
                           },
@@ -190,26 +296,89 @@ class _HomeRouteState extends State<HomeRoute> {
                             filled: true,
                             border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
                             contentPadding: EdgeInsets.all(16),
-                            helperText: routeNameValidator.validationMessage,
+                            helperText: cityValidator.validationMessage,
                             helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
                           ),
                         ),
                         SizedBox(height: 16),
-                        Text("Route Day", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
-                        SizedBox(height: 4),
-                        DropDownMultiSelectMenu(
-                            values: routeDay.split(", "),
-                            text: routeDay,
-                            title: "Select route day",
-                            onSelect: (items) {
-                              FocusScope.of(context).requestFocus(FocusNode());
-                              setState(() {
-                                routeDay = items.join(", ");
-                                routeDay = routeDay.startsWith(", ") ? routeDay.substring(2) : routeDay;
-                                print(routeDay);
-                              });
-                            }),
+
+                        //Route name and day------------
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Route name *",
+                                      style: TextStyles.caption(
+                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  SizedBox(
+                                    height: 4,
+                                  ),
+                                  TextField(
+                                    controller: routeNameController,
+                                    focusNode: routeNameFocusNode,
+                                    keyboardType: TextInputType.text,
+                                    style: TextStyles.body(
+                                        context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
+                                    cursorColor: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
+                                    textInputAction: TextInputAction.next,
+                                    onChanged: (value) {
+                                      if (!routeNameValidator.isValid) {
+                                        setState(() {
+                                          routeNameValidator.validate();
+                                        });
+                                      }
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: themeProvider.secondaryColor,
+                                      filled: true,
+                                      border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
+                                      contentPadding: EdgeInsets.all(16),
+                                      helperText: routeNameValidator.validationMessage,
+                                      helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Day*",
+                                      style: TextStyles.caption(
+                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  SizedBox(
+                                    height: 4,
+                                  ),
+                                  DropDownMultiSelectMenu(
+                                      values: routeDay.split(", "),
+                                      text: routeDay,
+                                      title: "Select route day",
+                                      onSelect: (items) {
+                                        FocusScope.of(context).requestFocus(FocusNode());
+                                        setState(() {
+                                          routeDay = items.join(", ");
+                                          routeDay = routeDay.startsWith(", ") ? routeDay.substring(2) : routeDay;
+                                          print(routeDay);
+                                        });
+                                      }),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                         SizedBox(height: 16),
+
+                        //Shop name-------------------
                         Text("Shop Name *",
                             style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
@@ -237,6 +406,7 @@ class _HomeRouteState extends State<HomeRoute> {
                           ),
                         ),
                         SizedBox(height: 16),
+                        //owner name-------------------
                         Text("Owner Name *",
                             style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
@@ -264,6 +434,7 @@ class _HomeRouteState extends State<HomeRoute> {
                           ),
                         ),
                         SizedBox(height: 16),
+                        //owner name-------------------
                         Text("Owner Phone *",
                             style:
                                 TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
@@ -292,113 +463,106 @@ class _HomeRouteState extends State<HomeRoute> {
                           ),
                         ),
                         //isDealer -----------------------
-                        CheckboxListTile(
-                            controlAffinity: ListTileControlAffinity.leading,
-                            contentPadding: EdgeInsets.zero,
-                            dense: true,
-                            title: Text(
-                              "Dealer",
-                              style: TextStyles.body(context: context, color: themeProvider.textColor),
-                            ),
-                            value: isDealer,
-                            onChanged: (val) {
-                              setState(() {
-                                isDealer = val;
-                              });
-                            }),
                         SizedBox(
-                          height: 8,
+                          height: 16,
+                        ),
+                        DropDownMenu(
+                            items: dealerTypes,
+                            value: _selectedTypes,
+                            onSelect: (value) {
+                              setState(() {
+                                _selectedTypes = value;
+                              });
+                            },
+                            title: 'Choose brands',
+                            text: _selectedTypes.isEmpty ? "Select one" : dealerTypes.firstWhere((element) => element.value == _selectedTypes).text),
+                        Visibility(
+                          visible: _selectedTypes == "dealer",
+                          child: Container(
+                            margin: EdgeInsets.only(top: 8),
+                            child: DropDownMenu(
+                                items: dealerListNames,
+                                value: _selectedDealerListItems,
+                                onSelect: (value) {
+                                  setState(() {
+                                    _selectedDealerListItems = value;
+                                  });
+                                },
+                                title: 'Choose brands',
+                                text: _selectedDealerListItems.isEmpty
+                                    ? "Select one"
+                                    : dealerListNames.firstWhere((element) => element.value == _selectedDealerListItems).text),
+                          ),
+                        ),
+                        Visibility(
+                          visible: _selectedTypes == "sub_dealer",
+                          child: Container(
+                            margin: EdgeInsets.only(top: 8),
+                            child: DropDownMenu(
+                                items: subDealerItems,
+                                value: _selectedSubDealerListItems,
+                                onSelect: (value) {
+                                  setState(() {
+                                    _selectedSubDealerListItems = value;
+                                  });
+                                },
+                                title: 'Choose brands',
+                                text: _selectedSubDealerListItems.isEmpty
+                                    ? "Select one"
+                                    : subDealerItems.firstWhere((element) => element.value == _selectedSubDealerListItems).text),
+                          ),
+                        ),
+                        Visibility(
+                          visible: _selectedTypes == "shop",
+                          child: Container(
+                            margin: EdgeInsets.only(top: 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Shop",
+                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  height: 48,
+                                  decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                  child: TextField(
+                                    controller: shopController,
+                                    textAlign: TextAlign.start,
+                                    maxLines: 1,
+                                    keyboardType: TextInputType.number,
+                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                    cursorColor: themeProvider.textColor,
+                                    textInputAction: TextInputAction.next,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      contentPadding: EdgeInsets.only(top: 24),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                DropDownMenu(
+                                    items: shopType,
+                                    value: _selectedShopTypes,
+                                    onSelect: (value) {
+                                      setState(() {
+                                        _selectedShopTypes = value;
+                                      });
+                                    },
+                                    title: 'Choose brands',
+                                    text:
+                                        _selectedShopTypes.isEmpty ? "Select one" : shopType.firstWhere((element) => element.value == _selectedShopTypes).text),
+                              ],
+                            ),
+                          ),
                         ),
 
-                        //Thana------------------------
-                        Text(
-                          "Thana",
-                          style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                        ),
-                        SizedBox(
-                          height: 4,
-                        ),
-                        Container(
-                          height: 48,
-                          padding: EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-                          decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                          child: TextField(
-                            controller: thanaController,
-                            textAlign: TextAlign.start,
-                            keyboardType: TextInputType.text,
-                            maxLines: 1,
-                            style: TextStyles.body(context: context, color: themeProvider.textColor),
-                            cursorColor: themeProvider.textColor,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              ),
-                              contentPadding: EdgeInsets.only(top: 24),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        Text("City *",
-                            style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
-                        SizedBox(height: 4),
-                        TextField(
-                          controller: cityController,
-                          focusNode: cityFocusNode,
-                          keyboardType: TextInputType.name,
-                          style: TextStyles.body(context: context, color: cityValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
-                          cursorColor: cityValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (value) {
-                            if (!cityValidator.isValid) {
-                              setState(() {
-                                cityValidator.validate();
-                              });
-                            }
-                          },
-                          decoration: InputDecoration(
-                            fillColor: themeProvider.secondaryColor,
-                            filled: true,
-                            border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
-                            contentPadding: EdgeInsets.all(16),
-                            helperText: cityValidator.validationMessage,
-                            helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        Text("District *",
-                            style: TextStyles.caption(context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
-                        SizedBox(height: 4),
-                        TextField(
-                          controller: districtController,
-                          focusNode: districtFocusNode,
-                          keyboardType: TextInputType.name,
-                          style: TextStyles.body(context: context, color: districtValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
-                          cursorColor: districtValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (value) {
-                            if (!districtValidator.isValid) {
-                              setState(() {
-                                districtValidator.validate();
-                              });
-                            }
-                          },
-                          decoration: InputDecoration(
-                            fillColor: themeProvider.secondaryColor,
-                            filled: true,
-                            border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
-                            contentPadding: EdgeInsets.all(16),
-                            helperText: districtValidator.validationMessage,
-                            helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Divider(),
-                        SizedBox(height: 8),
-                        Text(
-                          "Competitor01",
-                          style: TextStyles.body(context: context, color: themeProvider.hintColor),
-                        ),
                         SizedBox(
                           height: 8,
                         ),
@@ -406,256 +570,173 @@ class _HomeRouteState extends State<HomeRoute> {
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Walton(TV)",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  Container(
-                                    height: 48,
-                                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-                                    decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                    child: TextField(
-                                      controller: waltonTVController,
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                      cursorColor: themeProvider.textColor,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: EdgeInsets.only(top: 24),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            Text(
+                              "Competitors",
+                              style: TextStyles.caption(context: context, color: themeProvider.hintColor),
                             ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Walton(RF)",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  Container(
-                                    height: 48,
-                                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-                                    decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                    child: TextField(
-                                      controller: waltonRFController,
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                      cursorColor: themeProvider.textColor,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: EdgeInsets.only(top: 24),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            IconButton(
+                                icon: CircleAvatar(
+                                    backgroundColor: themeProvider.accentColor.withOpacity(.08),
+                                    child: Icon(
+                                      Icons.add,
+                                      color: themeProvider.accentColor,
+                                    )),
+                                onPressed: () {
+                                  setState(() {
+                                    competitorsList.add(Competitor("", TextEditingController(), TextEditingController(), TextEditingController()));
+                                  });
+                                })
                           ],
                         ),
-                        SizedBox(height: 16),
-                        //Competitor02---------------------
-                        Text(
-                          "Competitor02",
-                          style: TextStyles.body(context: context, color: themeProvider.hintColor),
+                        Center(
+                          child: Visibility(
+                              visible: competitorsList.length == 0,
+                              child: Text(
+                                "No Data Found",
+                                style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                              )),
                         ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Row(
+                        Column(
                           mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Vision(TV)",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  Container(
-                                    height: 48,
-                                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-                                    decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                    child: TextField(
-                                      controller: visionTVController,
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                      cursorColor: themeProvider.textColor,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: EdgeInsets.only(top: 24),
+                          children: competitorsList
+                              .map(
+                                (e) => Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  margin: EdgeInsets.only(bottom: 8),
+                                  height: 148,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      DropDownMenu(
+                                          items: _competitorItems,
+                                          value: e.competitorGUID,
+                                          onSelect: (value) {
+                                            setState(() {
+                                              e.competitorGUID = value;
+                                            });
+                                          },
+                                          title: 'Choose brands',
+                                          text: e.competitorGUID.isEmpty
+                                              ? "Select one"
+                                              : _competitorItems.firstWhere((element) => element.value == e.competitorGUID).text),
+                                      SizedBox(
+                                        height: 8,
                                       ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Vision(RF)",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  Container(
-                                    height: 48,
-                                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-                                    decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                    child: TextField(
-                                      controller: visionRFController,
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                      cursorColor: themeProvider.textColor,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: EdgeInsets.only(top: 24),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "TV",
+                                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  height: 48,
+                                                  decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                                  child: TextField(
+                                                    controller: e.competitorTV,
+                                                    textAlign: TextAlign.start,
+                                                    maxLines: 1,
+                                                    keyboardType: TextInputType.number,
+                                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                                    cursorColor: themeProvider.textColor,
+                                                    textInputAction: TextInputAction.next,
+                                                    decoration: InputDecoration(
+                                                      border: OutlineInputBorder(
+                                                        borderSide: BorderSide.none,
+                                                      ),
+                                                      contentPadding: EdgeInsets.only(top: 24),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 4,
+                                          ),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  "RF",
+                                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  height: 48,
+                                                  decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                                  child: TextField(
+                                                    controller: e.competitorRF,
+                                                    textAlign: TextAlign.start,
+                                                    maxLines: 1,
+                                                    keyboardType: TextInputType.number,
+                                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                                    cursorColor: themeProvider.textColor,
+                                                    textInputAction: TextInputAction.next,
+                                                    decoration: InputDecoration(
+                                                      border: OutlineInputBorder(
+                                                        borderSide: BorderSide.none,
+                                                      ),
+                                                      contentPadding: EdgeInsets.only(top: 24),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 4,
+                                          ),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  "AC",
+                                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                                ),
+                                                Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  height: 48,
+                                                  decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                                  child: TextField(
+                                                    controller: e.competitorAC,
+                                                    textAlign: TextAlign.start,
+                                                    maxLines: 1,
+                                                    keyboardType: TextInputType.number,
+                                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                                    cursorColor: themeProvider.textColor,
+                                                    textInputAction: TextInputAction.next,
+                                                    decoration: InputDecoration(
+                                                      border: OutlineInputBorder(
+                                                        borderSide: BorderSide.none,
+                                                      ),
+                                                      contentPadding: EdgeInsets.only(top: 24),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
+                                      Divider(),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 16),
-                        //Competitor03----------------------
-                        Text(
-                          "Competitor03",
-                          style: TextStyles.body(context: context, color: themeProvider.hintColor),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Marcel(TV)",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  Container(
-                                    height: 48,
-                                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-                                    decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                    child: TextField(
-                                      controller: marcelTVController,
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                      cursorColor: themeProvider.textColor,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: EdgeInsets.only(top: 24),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Minister(RF)",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  Container(
-                                    height: 48,
-                                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-                                    decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                    child: TextField(
-                                      controller: ministerRFController,
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                      cursorColor: themeProvider.textColor,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: EdgeInsets.only(top: 24),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                                ),
+                              )
+                              .toList(),
                         ),
                         SizedBox(height: 8),
                         Divider(),
@@ -803,7 +884,7 @@ class _HomeRouteState extends State<HomeRoute> {
                               ),
                               flex: 4,
                             ),
-                            SizedBox(width: 8),
+                            /*SizedBox(width: 8),
                             Expanded(
                               flex: 2,
                               child: Column(
@@ -876,7 +957,7 @@ class _HomeRouteState extends State<HomeRoute> {
                                   ),
                                 ],
                               ),
-                            ),
+                            ),*/
                           ],
                         ),
                         SizedBox(height: 16),
@@ -968,9 +1049,9 @@ class _HomeRouteState extends State<HomeRoute> {
                                   isDealer: isDealer,
                                   city: cityController.text,
                                   district: districtController.text,
-                                  competitor1TvWalton: waltonTVController.text.toString(),
+                                  competitor1TvWalton: tVController.text.toString(),
                                   competitor1RfWalton: waltonRFController.text.toString(),
-                                  competitor2TvVision: visionTVController.text.toString(),
+                                  competitor2TvVision: rfController.text.toString(),
                                   competitor2RfVision: visionRFController.text.toString(),
                                   competitor3TvMarcel: marcelTVController.text.toString(),
                                   competitor3RfMinister: ministerRFController.text.toString(),
@@ -1060,9 +1141,9 @@ class _HomeRouteState extends State<HomeRoute> {
                                 districtController.text = "";
                                 routeNameController.text = "";
                                 routeDay = "";
-                                waltonTVController.text = "";
+                                tVController.text = "";
                                 waltonRFController.text = "";
-                                visionTVController.text = "";
+                                rfController.text = "";
                                 visionRFController.text = "";
                                 marcelTVController.text = "";
                                 ministerRFController.text = "";
