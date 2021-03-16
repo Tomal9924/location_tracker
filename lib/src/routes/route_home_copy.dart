@@ -43,9 +43,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   List<Competitor> competitorsList = [];
   bool isDealer = false;
   List<DropDownItem> dealerTypes = [
-    DropDownItem(text: "Dealer", value: "dealer"),
-    DropDownItem(text: "Sub-Dealer", value: "sub_dealer"),
-    DropDownItem(text: "Shop", value: "shop"),
+    DropDownItem(text: "Dealer", value: "Dealer"),
+    DropDownItem(text: "Sub-Dealer", value: "Sub-Dealer"),
+    DropDownItem(text: "Shop", value: "Shop"),
   ];
   List<DropDownItem> dealerListNames = [
     DropDownItem(text: "Jack", value: "jack"),
@@ -72,9 +72,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
     DropDownItem(text: "Minister", value: "minister"),
   ];
   String _selectedTypes = "";
-  String _selectedDealerListItems = "";
-  String _selectedSubDealerListItems = "";
   String _selectedShopTypes = "";
+  String _selectedSubShopTypes = "";
+  String distributorName = "Shop";
   TextEditingController shopNameController = new TextEditingController();
   TextEditingController ownerNameController = new TextEditingController();
   TextEditingController ownerPhoneController = new TextEditingController();
@@ -95,7 +95,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   TextEditingController displayOutController = new TextEditingController();
   TextEditingController displayInController = new TextEditingController();
   TextEditingController acController = new TextEditingController();
-  TextEditingController shopController = new TextEditingController();
+  TextEditingController subShopController = new TextEditingController();
 
   FormValidator shopValidator = FormValidator();
   FormValidator routeNameValidator = FormValidator();
@@ -142,7 +142,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
         backgroundColor: themeProvider.backgroundColor,
         elevation: 0,
         title: Text(
-          "Location Plotting",
+          "JEAL Plotting",
           style: TextStyles.title(context: context, color: themeProvider.accentColor),
         ),
         actions: [
@@ -377,9 +377,61 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           ],
                         ),
                         SizedBox(height: 16),
-
                         //Shop name-------------------
-                        Text("Shop Name *",
+                        DropDownMenu(
+                            items: dealerTypes,
+                            value: _selectedTypes,
+                            onSelect: (value) {
+                              setState(() {
+                                _selectedTypes = value;
+                                distributorName = _selectedTypes;
+                              });
+                            },
+                            title: 'Choose brands',
+                            text: _selectedTypes.isEmpty ? "Select one" : dealerTypes.firstWhere((element) => element.value == _selectedTypes).text),
+                        Visibility(
+                          visible: _selectedTypes == "Shop",
+                          child: Container(
+                            margin: EdgeInsets.only(top: 8),
+                            child: DropDownMenu(
+                                items: shopType,
+                                value: _selectedShopTypes,
+                                onSelect: (value) {
+                                  setState(() {
+                                    _selectedShopTypes = value;
+                                  });
+                                },
+                                title: 'Choose brands',
+                                text: _selectedShopTypes.isEmpty ? "Select one" : shopType.firstWhere((element) => element.value == _selectedShopTypes).text),
+                          ),
+                        ),
+                        Visibility(
+                          visible: _selectedShopTypes == "Registered",
+                          child: Container(
+                            margin: EdgeInsets.only(top: 8),
+                            child: TextField(
+                              controller: subShopController,
+                              keyboardType: TextInputType.text,
+                              style: TextStyles.body(context: context, color: themeProvider.textColor),
+                              cursorColor: themeProvider.textColor,
+                              textInputAction: TextInputAction.next,
+                              decoration: InputDecoration(
+                                hintText: "Registered shop name",
+                                hintStyle: TextStyles.caption(context: context, color: themeProvider.hintColor.withOpacity(.5)),
+                                fillColor: themeProvider.secondaryColor,
+                                filled: true,
+                                border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
+                                prefixIconConstraints: BoxConstraints(maxWidth: 36, minWidth: 36),
+                                contentPadding: EdgeInsets.all(16),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: 16,
+                        ),
+                        Text("$distributorName Name *",
                             style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
@@ -465,102 +517,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         //isDealer -----------------------
                         SizedBox(
                           height: 16,
-                        ),
-                        DropDownMenu(
-                            items: dealerTypes,
-                            value: _selectedTypes,
-                            onSelect: (value) {
-                              setState(() {
-                                _selectedTypes = value;
-                              });
-                            },
-                            title: 'Choose brands',
-                            text: _selectedTypes.isEmpty ? "Select one" : dealerTypes.firstWhere((element) => element.value == _selectedTypes).text),
-                        Visibility(
-                          visible: _selectedTypes == "dealer",
-                          child: Container(
-                            margin: EdgeInsets.only(top: 8),
-                            child: DropDownMenu(
-                                items: dealerListNames,
-                                value: _selectedDealerListItems,
-                                onSelect: (value) {
-                                  setState(() {
-                                    _selectedDealerListItems = value;
-                                  });
-                                },
-                                title: 'Choose brands',
-                                text: _selectedDealerListItems.isEmpty
-                                    ? "Select one"
-                                    : dealerListNames.firstWhere((element) => element.value == _selectedDealerListItems).text),
-                          ),
-                        ),
-                        Visibility(
-                          visible: _selectedTypes == "sub_dealer",
-                          child: Container(
-                            margin: EdgeInsets.only(top: 8),
-                            child: DropDownMenu(
-                                items: subDealerItems,
-                                value: _selectedSubDealerListItems,
-                                onSelect: (value) {
-                                  setState(() {
-                                    _selectedSubDealerListItems = value;
-                                  });
-                                },
-                                title: 'Choose brands',
-                                text: _selectedSubDealerListItems.isEmpty
-                                    ? "Select one"
-                                    : subDealerItems.firstWhere((element) => element.value == _selectedSubDealerListItems).text),
-                          ),
-                        ),
-                        Visibility(
-                          visible: _selectedTypes == "shop",
-                          child: Container(
-                            margin: EdgeInsets.only(top: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Shop",
-                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(8),
-                                  height: 48,
-                                  decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                  child: TextField(
-                                    controller: shopController,
-                                    textAlign: TextAlign.start,
-                                    maxLines: 1,
-                                    keyboardType: TextInputType.number,
-                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                    cursorColor: themeProvider.textColor,
-                                    textInputAction: TextInputAction.next,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      contentPadding: EdgeInsets.only(top: 24),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 8,
-                                ),
-                                DropDownMenu(
-                                    items: shopType,
-                                    value: _selectedShopTypes,
-                                    onSelect: (value) {
-                                      setState(() {
-                                        _selectedShopTypes = value;
-                                      });
-                                    },
-                                    title: 'Choose brands',
-                                    text:
-                                        _selectedShopTypes.isEmpty ? "Select one" : shopType.firstWhere((element) => element.value == _selectedShopTypes).text),
-                              ],
-                            ),
-                          ),
                         ),
 
                         SizedBox(

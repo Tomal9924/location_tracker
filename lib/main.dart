@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
-      title: 'Jamuna Electronics & Automobiles',
+      title: 'JEAL Plotting',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: themeProvider.accentColor,
