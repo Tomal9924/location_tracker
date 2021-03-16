@@ -28,18 +28,22 @@ class PointAdapter extends TypeAdapter<Point> {
       shopName: fields[8] as String,
       ownerName: fields[9] as String,
       ownerPhone: fields[10] as String,
-      monthlySaleTv: fields[17] as String,
-      monthlySaleRf: fields[18] as String,
-      monthlySaleAc: fields[19] as String,
-      showroomSize: fields[20] as String,
-      files: fields[23] as String,
+      monthlySaleTv: fields[11] as String,
+      monthlySaleRf: fields[12] as String,
+      monthlySaleAc: fields[13] as String,
+      showroomSize: fields[14] as String,
+      files: fields[15] as String,
+      shopSubType: fields[16] as String,
+      registeredName: fields[17] as String,
+      competitorList: fields[18] as String,
+      thana: fields[19] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Point obj) {
     writer
-      ..writeByte(24)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -63,36 +67,32 @@ class PointAdapter extends TypeAdapter<Point> {
       ..writeByte(10)
       ..write(obj.ownerPhone)
       ..writeByte(11)
-      ..write(obj.competitor1TvWalton)
-      ..writeByte(12)
-      ..write(obj.competitor1RfWalton)
-      ..writeByte(13)
-      ..write(obj.competitor2TvVision)
-      ..writeByte(14)
-      ..write(obj.competitor2RfVision)
-      ..writeByte(15)
-      ..write(obj.competitor3TvMarcel)
-      ..writeByte(16)
-      ..write(obj.competitor3RfMinister)
-      ..writeByte(17)
       ..write(obj.monthlySaleTv)
-      ..writeByte(18)
+      ..writeByte(12)
       ..write(obj.monthlySaleRf)
-      ..writeByte(19)
+      ..writeByte(13)
       ..write(obj.monthlySaleAc)
-      ..writeByte(20)
+      ..writeByte(14)
       ..write(obj.showroomSize)
-      ..writeByte(21)
-      ..write(obj.displayOut)
-      ..writeByte(22)
-      ..write(obj.displayIn)
-      ..writeByte(23)
-      ..write(obj.files);
+      ..writeByte(15)
+      ..write(obj.files)
+      ..writeByte(16)
+      ..write(obj.shopSubType)
+      ..writeByte(17)
+      ..write(obj.registeredName)
+      ..writeByte(18)
+      ..write(obj.competitorList)
+      ..writeByte(19)
+      ..write(obj.thana);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is PointAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PointAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

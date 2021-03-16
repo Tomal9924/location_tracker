@@ -85,16 +85,17 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   TextEditingController monthlySaleRFController = new TextEditingController();
   TextEditingController monthlySaleACController = new TextEditingController();
   TextEditingController showRoomSizeController = new TextEditingController();
-  TextEditingController displayOutController = new TextEditingController();
-  TextEditingController displayInController = new TextEditingController();
   TextEditingController acController = new TextEditingController();
   TextEditingController subShopController = new TextEditingController();
   TextEditingController competitor1TVController = new TextEditingController();
   TextEditingController competitor1RFController = new TextEditingController();
+  TextEditingController competitor1ACController = new TextEditingController();
   TextEditingController competitor2TVController = new TextEditingController();
   TextEditingController competitor2RFController = new TextEditingController();
+  TextEditingController competitor2ACController = new TextEditingController();
   TextEditingController competitor3TVController = new TextEditingController();
   TextEditingController competitor3RFController = new TextEditingController();
+  TextEditingController competitor3ACController = new TextEditingController();
 
   FormValidator shopValidator = FormValidator();
   FormValidator routeNameValidator = FormValidator();
@@ -632,6 +633,41 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                     ],
                                   ),
                                 ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "AC",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor1ACController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            contentPadding: EdgeInsets.only(top: 24),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                             //Comp 02----------
@@ -716,6 +752,41 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
                                         child: TextField(
                                           controller: competitor2RFController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            contentPadding: EdgeInsets.only(top: 24),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "AC",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor2ACController,
                                           textAlign: TextAlign.start,
                                           maxLines: 1,
                                           keyboardType: TextInputType.number,
@@ -818,6 +889,41 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
                                         child: TextField(
                                           controller: competitor3RFController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            contentPadding: EdgeInsets.only(top: 24),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "AC",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor3ACController,
                                           textAlign: TextAlign.start,
                                           maxLines: 1,
                                           keyboardType: TextInputType.number,
@@ -986,79 +1092,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               flex: 4,
                             ),
                             SizedBox(width: 8),
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Display(out)",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Container(
-                                    height: 48,
-                                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-                                    decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                    child: TextField(
-                                      controller: displayOutController,
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                      cursorColor: themeProvider.textColor,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: EdgeInsets.only(top: 24),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Display(in)",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  Container(
-                                    height: 48,
-                                    padding: EdgeInsets.only(left: 16, bottom: 16, top: 8),
-                                    decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                    child: TextField(
-                                      controller: displayInController,
-                                      textAlign: TextAlign.start,
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                      cursorColor: themeProvider.textColor,
-                                      textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: EdgeInsets.only(top: 24),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                         SizedBox(height: 16),
@@ -1145,19 +1178,19 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                     "CompetitorId": competitor1GUID,
                                     "TV": competitor1TVController.text,
                                     "RF": competitor1RFController.text,
-                                    "AC": "0",
+                                    "AC": competitor1ACController.text,
                                   },
                                   {
                                     "CompetitorId": competitor2GUID,
                                     "TV": competitor2TVController.text,
                                     "RF": competitor2RFController.text,
-                                    "AC": "0",
+                                    "AC": competitor2ACController.text,
                                   },
                                   {
                                     "CompetitorId": competitor3GUID,
                                     "TV": competitor3TVController.text,
                                     "RF": competitor3RFController.text,
-                                    "AC": "0",
+                                    "AC": competitor3ACController.text,
                                   },
                                 ];
 
@@ -1272,8 +1305,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 monthlySaleRFController.text = "";
                                 monthlySaleACController.text = "";
                                 showRoomSizeController.text = "";
-                                displayOutController.text = "";
-                                displayInController.text = "";
                                 isDealer = "";
                                 files = [];
                               } else {
