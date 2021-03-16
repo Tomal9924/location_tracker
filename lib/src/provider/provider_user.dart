@@ -1,3 +1,5 @@
+import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -5,12 +7,16 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:location_tracker/src/model/db/point.dart';
 import 'package:location_tracker/src/model/db/user.dart';
+import 'package:location_tracker/src/model/drop_down_item.dart';
 import 'package:location_tracker/src/utils/api.dart';
 
 class UserProvider extends ChangeNotifier {
   User user;
   Box<User> userBox;
   Box<Point> pointBox;
+  Map<String, DropDownItem> competitors = HashMap();
+  bool isNetworking = false;
+  bool isNetworkingCompetitors = false;
 
   init() {
     if (user == null) {
@@ -25,33 +31,62 @@ class UserProvider extends ChangeNotifier {
     pointBox = Hive.box("points");
   }
 
+  List<DropDownItem> getAllCompetitors(String guid) {
+    List<DropDownItem> list = competitors.values.toList();
+    list.removeWhere((element) => element.value == guid);
+    return list;
+  }
+
+  Future<void> loadCompetitors() async {
+    init();
+    try {
+      if (isNetworkingCompetitors)
+        return;
+      else {
+        isNetworkingCompetitors = true;
+        notifyListeners();
+      }
+      var headers = {"authorization": user.token};
+
+      Response response = await get(Api.getCompetitors, headers: headers);
+      if (response.statusCode == 200) {
+        List<Map<String, dynamic>> result = List<Map<String, dynamic>>.from(json.decode(response.body)["cmpList"]);
+        result.forEach((element) {
+          DropDownItem dropDownItem = DropDownItem.fromJSON(element);
+          competitors[dropDownItem.value] = dropDownItem;
+        });
+      }
+      isNetworkingCompetitors = false;
+      notifyListeners();
+      return;
+    } catch (error) {
+      print(error);
+    }
+  }
+
   Future<int> saveOnline(Point point, List<File> files) async {
     try {
       var headers = {
         "Authorization": user.token,
         "UserId": user.guid,
+        "PointName": point.pointName.toString(),
+        "RouteDay": point.routeDay,
         "District": point.district,
-        "City": point.city,
-        "Name": point.routeName,
+        "Thana": point.thana,
+        "CityVillage": point.city,
         "Lat": point.lat.toString(),
         "Lng": point.lng.toString(),
-        "IsDealer": point.isDealer.toString(),
-        "RouteDay": point.routeDay,
+        "LocationType": point.isDealer.toString(),
+        "ShopType": point.shopSubType.toString(),
+        "RegisteredName": point.registeredName.toString(),
         "ShopName": point.shopName,
         "OwnerName": point.ownerName,
         "OwnerPhone": point.ownerPhone,
-        "Competitor1TvWalton": point.competitor1TvWalton,
-        "Competitor1RfWalton": point.competitor1RfWalton,
-        "Competitor2TvVision": point.competitor2TvVision,
-        "Competitor2RfVision": point.competitor2RfVision,
-        "Competitor3TvMarcel": point.competitor3TvMarcel,
-        "Competitor3RfMinister": point.competitor3RfMinister,
         "MonthlySaleTv": point.monthlySaleTv,
         "MonthlySaleRf": point.monthlySaleRf,
         "MonthlySaleAc": point.monthlySaleAc,
         "ShowroomSize": point.showroomSize,
-        "DisplayOut": point.displayOut,
-        "DisplayIn": point.displayIn,
+        "CompetitorList": point.competitorList,
       };
 
       var request = MultipartRequest(
@@ -80,28 +115,24 @@ class UserProvider extends ChangeNotifier {
       var headers = {
         "Authorization": user.token,
         "UserId": user.guid,
+        "PointName": point.pointName.toString(),
+        "RouteDay": point.routeDay,
         "District": point.district,
-        "City": point.city,
-        "Name": point.routeName,
+        "Thana": point.thana,
+        "CityVillage": point.city,
         "Lat": point.lat.toString(),
         "Lng": point.lng.toString(),
-        "IsDealer": point.isDealer.toString(),
-        "RouteDay": point.routeDay,
+        "LocationType": point.isDealer.toString(),
+        "ShopType": point.shopSubType.toString(),
+        "RegisteredName": point.registeredName.toString(),
         "ShopName": point.shopName,
         "OwnerName": point.ownerName,
         "OwnerPhone": point.ownerPhone,
-        "Competitor1TvWalton": point.competitor1TvWalton,
-        "Competitor1RfWalton": point.competitor1RfWalton,
-        "Competitor2TvVision": point.competitor2TvVision,
-        "Competitor2RfVision": point.competitor2RfVision,
-        "Competitor3TvMarcel": point.competitor3TvMarcel,
-        "Competitor3RfMinister": point.competitor3RfMinister,
         "MonthlySaleTv": point.monthlySaleTv,
         "MonthlySaleRf": point.monthlySaleRf,
         "MonthlySaleAc": point.monthlySaleAc,
         "ShowroomSize": point.showroomSize,
-        "DisplayOut": point.displayOut,
-        "DisplayIn": point.displayIn,
+        "CompetitorList": point.competitorList,
       };
 
       var request = MultipartRequest(

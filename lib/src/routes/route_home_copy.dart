@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -38,10 +39,11 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   final picker = ImagePicker();
   bool isLoading = true;
   String routeDay = "";
-  String shape = "";
+  String district = "";
+  String thana = "";
   List<File> files = [];
   List<Competitor> competitorsList = [];
-  bool isDealer = false;
+  String isDealer = "";
   List<DropDownItem> dealerTypes = [
     DropDownItem(text: "Dealer", value: "Dealer"),
     DropDownItem(text: "Sub-Dealer", value: "Sub-Dealer"),
@@ -65,13 +67,10 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
     DropDownItem(text: "Raju", value: "Raju"),
     DropDownItem(text: "Mina", value: "Mina"),
   ];
-  List<DropDownItem> _competitorItems = [
-    DropDownItem(text: "Walton", value: "walton"),
-    DropDownItem(text: "Vision", value: "vision"),
-    DropDownItem(text: "Marcel", value: "marcel"),
-    DropDownItem(text: "Minister", value: "minister"),
-  ];
-  String _selectedTypes = "";
+  String competitor1GUID = "";
+  String competitor2GUID = "";
+  String competitor3GUID = "";
+  String _selectedisDealerTypes = "";
   String _selectedShopTypes = "";
   String _selectedSubShopTypes = "";
   String distributorName = "Shop";
@@ -82,12 +81,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   TextEditingController cityController = new TextEditingController();
   TextEditingController districtController = new TextEditingController();
   TextEditingController routeNameController = new TextEditingController();
-  TextEditingController tVController = new TextEditingController();
-  TextEditingController waltonRFController = new TextEditingController();
-  TextEditingController rfController = new TextEditingController();
-  TextEditingController visionRFController = new TextEditingController();
-  TextEditingController marcelTVController = new TextEditingController();
-  TextEditingController ministerRFController = new TextEditingController();
   TextEditingController monthlySaleTVController = new TextEditingController();
   TextEditingController monthlySaleRFController = new TextEditingController();
   TextEditingController monthlySaleACController = new TextEditingController();
@@ -96,6 +89,12 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   TextEditingController displayInController = new TextEditingController();
   TextEditingController acController = new TextEditingController();
   TextEditingController subShopController = new TextEditingController();
+  TextEditingController competitor1TVController = new TextEditingController();
+  TextEditingController competitor1RFController = new TextEditingController();
+  TextEditingController competitor2TVController = new TextEditingController();
+  TextEditingController competitor2RFController = new TextEditingController();
+  TextEditingController competitor3TVController = new TextEditingController();
+  TextEditingController competitor3RFController = new TextEditingController();
 
   FormValidator shopValidator = FormValidator();
   FormValidator routeNameValidator = FormValidator();
@@ -135,6 +134,11 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
     userProvider.init();
     internetProvider.listen();
     lookUpProvider.init();
+    Future.delayed(Duration.zero, () {
+      if (!userProvider.isNetworkingCompetitors && userProvider.competitors.isEmpty) {
+        userProvider.loadCompetitors();
+      }
+    });
     return Scaffold(
       backgroundColor: themeProvider.backgroundColor,
       appBar: AppBar(
@@ -231,13 +235,13 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   CustomDropDownMenu(
                                     onSelect: (value) {
                                       setState(() {
-                                        shape = value;
+                                        district = value;
                                       });
                                     },
-                                    title: "Choose an shape",
-                                    keyword: Api.lookUpRugShape,
-                                    value: shape,
-                                    text: lookUpProvider.displayText(Api.lookUpRugShape, shape),
+                                    keyword: Api.lookUpDistrict,
+                                    value: district,
+                                    text: lookUpProvider.displayText(Api.lookUpDistrict, district),
+                                    title: "Choose District",
                                   ),
                                 ],
                               ),
@@ -259,13 +263,13 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   CustomDropDownMenu(
                                     onSelect: (value) {
                                       setState(() {
-                                        shape = value;
+                                        thana = value;
                                       });
                                     },
-                                    title: "Choose an shape",
-                                    keyword: Api.lookUpRugShape,
-                                    value: shape,
-                                    text: lookUpProvider.displayText(Api.lookUpRugShape, shape),
+                                    title: "Choose Thana",
+                                    keyword: Api.lookUpThana,
+                                    value: thana,
+                                    text: lookUpProvider.displayText(Api.lookUpThana, thana),
                                   ),
                                 ],
                               ),
@@ -378,19 +382,25 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 16),
                         //Shop name-------------------
+                        Text("Dealer/Sub-dealer/Shop",
+                            style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+
+                        SizedBox(height: 4),
                         DropDownMenu(
                             items: dealerTypes,
-                            value: _selectedTypes,
+                            value: _selectedisDealerTypes,
                             onSelect: (value) {
                               setState(() {
-                                _selectedTypes = value;
-                                distributorName = _selectedTypes;
+                                _selectedisDealerTypes = value;
+                                distributorName = _selectedisDealerTypes;
                               });
                             },
                             title: 'Choose brands',
-                            text: _selectedTypes.isEmpty ? "Select one" : dealerTypes.firstWhere((element) => element.value == _selectedTypes).text),
+                            text: _selectedisDealerTypes.isEmpty
+                                ? "Select one"
+                                : dealerTypes.firstWhere((element) => element.value == _selectedisDealerTypes).text),
                         Visibility(
-                          visible: _selectedTypes == "Shop",
+                          visible: _selectedisDealerTypes == "Shop",
                           child: Container(
                             margin: EdgeInsets.only(top: 8),
                             child: DropDownMenu(
@@ -416,7 +426,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               cursorColor: themeProvider.textColor,
                               textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
-                                hintText: "Registered shop name",
+                                hintText: "registered from...",
                                 hintStyle: TextStyles.caption(context: context, color: themeProvider.hintColor.withOpacity(.5)),
                                 fillColor: themeProvider.secondaryColor,
                                 filled: true,
@@ -522,177 +532,312 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(
                           height: 8,
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Competitors",
-                              style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                            ),
-                            IconButton(
-                                icon: CircleAvatar(
-                                    backgroundColor: themeProvider.accentColor.withOpacity(.08),
-                                    child: Icon(
-                                      Icons.add,
-                                      color: themeProvider.accentColor,
-                                    )),
-                                onPressed: () {
-                                  setState(() {
-                                    competitorsList.add(Competitor("", TextEditingController(), TextEditingController(), TextEditingController()));
-                                  });
-                                })
-                          ],
-                        ),
-                        Center(
-                          child: Visibility(
-                              visible: competitorsList.length == 0,
-                              child: Text(
-                                "No Data Found",
-                                style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                              )),
-                        ),
                         Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: competitorsList
-                              .map(
-                                (e) => Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  margin: EdgeInsets.only(bottom: 8),
-                                  height: 148,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            //Comp 01--------
+                            Text(
+                              "Competitor 01",
+                              style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            DropDownMenu(
+                                items: userProvider.getAllCompetitors(competitor1GUID),
+                                value: competitor1GUID,
+                                onSelect: (value) {
+                                  setState(() {
+                                    competitor1GUID = value;
+                                  });
+                                },
+                                title: 'Choose brands',
+                                text: userProvider.isNetworkingCompetitors
+                                    ? "Please wait..."
+                                    : competitor1GUID.isEmpty
+                                        ? "Select one"
+                                        : userProvider.competitors.values.firstWhere((element) => element.value == competitor1GUID).text),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      DropDownMenu(
-                                          items: _competitorItems,
-                                          value: e.competitorGUID,
-                                          onSelect: (value) {
-                                            setState(() {
-                                              e.competitorGUID = value;
-                                            });
-                                          },
-                                          title: 'Choose brands',
-                                          text: e.competitorGUID.isEmpty
-                                              ? "Select one"
-                                              : _competitorItems.firstWhere((element) => element.value == e.competitorGUID).text),
-                                      SizedBox(
-                                        height: 8,
+                                      Text(
+                                        "TV",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
                                       ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "TV",
-                                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                                ),
-                                                Container(
-                                                  padding: EdgeInsets.all(8),
-                                                  height: 48,
-                                                  decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                                  child: TextField(
-                                                    controller: e.competitorTV,
-                                                    textAlign: TextAlign.start,
-                                                    maxLines: 1,
-                                                    keyboardType: TextInputType.number,
-                                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                                    cursorColor: themeProvider.textColor,
-                                                    textInputAction: TextInputAction.next,
-                                                    decoration: InputDecoration(
-                                                      border: OutlineInputBorder(
-                                                        borderSide: BorderSide.none,
-                                                      ),
-                                                      contentPadding: EdgeInsets.only(top: 24),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor1TVController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
                                             ),
+                                            contentPadding: EdgeInsets.only(top: 24),
                                           ),
-                                          SizedBox(
-                                            width: 4,
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  "RF",
-                                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                                ),
-                                                Container(
-                                                  padding: EdgeInsets.all(8),
-                                                  height: 48,
-                                                  decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                                  child: TextField(
-                                                    controller: e.competitorRF,
-                                                    textAlign: TextAlign.start,
-                                                    maxLines: 1,
-                                                    keyboardType: TextInputType.number,
-                                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                                    cursorColor: themeProvider.textColor,
-                                                    textInputAction: TextInputAction.next,
-                                                    decoration: InputDecoration(
-                                                      border: OutlineInputBorder(
-                                                        borderSide: BorderSide.none,
-                                                      ),
-                                                      contentPadding: EdgeInsets.only(top: 24),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 4,
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  "AC",
-                                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                                ),
-                                                Container(
-                                                  padding: EdgeInsets.all(8),
-                                                  height: 48,
-                                                  decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
-                                                  child: TextField(
-                                                    controller: e.competitorAC,
-                                                    textAlign: TextAlign.start,
-                                                    maxLines: 1,
-                                                    keyboardType: TextInputType.number,
-                                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                                    cursorColor: themeProvider.textColor,
-                                                    textInputAction: TextInputAction.next,
-                                                    decoration: InputDecoration(
-                                                      border: OutlineInputBorder(
-                                                        borderSide: BorderSide.none,
-                                                      ),
-                                                      contentPadding: EdgeInsets.only(top: 24),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                      Divider(),
                                     ],
                                   ),
                                 ),
-                              )
-                              .toList(),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "RF",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor1RFController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            contentPadding: EdgeInsets.only(top: 24),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            //Comp 02----------
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Text(
+                              "Competitor 02",
+                              style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            DropDownMenu(
+                                items: userProvider.getAllCompetitors(competitor2GUID),
+                                value: competitor2GUID,
+                                onSelect: (value) {
+                                  setState(() {
+                                    competitor2GUID = value;
+                                  });
+                                },
+                                title: 'Choose brands',
+                                text: userProvider.isNetworkingCompetitors
+                                    ? "Please wait..."
+                                    : competitor2GUID.isEmpty
+                                        ? "Select one"
+                                        : userProvider.competitors.values.firstWhere((element) => element.value == competitor2GUID).text),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "TV",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor2TVController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            contentPadding: EdgeInsets.only(top: 24),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "RF",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor2RFController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            contentPadding: EdgeInsets.only(top: 24),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            //Comp 03--------
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Text(
+                              "Competitor 03",
+                              style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            DropDownMenu(
+                                items: userProvider.getAllCompetitors(competitor3GUID),
+                                value: competitor3GUID,
+                                onSelect: (value) {
+                                  setState(() {
+                                    competitor3GUID = value;
+                                  });
+                                },
+                                title: 'Choose brands',
+                                text: userProvider.isNetworkingCompetitors
+                                    ? "Please wait..."
+                                    : competitor3GUID.isEmpty
+                                        ? "Select one"
+                                        : userProvider.competitors.values.firstWhere((element) => element.value == competitor3GUID).text),
+                            SizedBox(
+                              height: 8,
+                            ),
+
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "TV",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor3TVController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            contentPadding: EdgeInsets.only(top: 24),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "RF",
+                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        height: 48,
+                                        decoration: BoxDecoration(color: themeProvider.secondaryColor, borderRadius: BorderRadius.circular(8)),
+                                        child: TextField(
+                                          controller: competitor3RFController,
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                                          cursorColor: themeProvider.textColor,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            contentPadding: EdgeInsets.only(top: 24),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                         SizedBox(height: 8),
                         Divider(),
@@ -840,7 +985,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               ),
                               flex: 4,
                             ),
-                            /*SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Expanded(
                               flex: 2,
                               child: Column(
@@ -913,7 +1058,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   ),
                                 ],
                               ),
-                            ),*/
+                            ),
                           ],
                         ),
                         SizedBox(height: 16),
@@ -995,32 +1140,52 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   ownerPhoneValidator.isValid &&
                                   cityValidator.isValid &&
                                   districtValidator.isValid) {
+                                List<Map<String, String>> items = [
+                                  {
+                                    "CompetitorId": competitor1GUID,
+                                    "TV": competitor1TVController.text,
+                                    "RF": competitor1RFController.text,
+                                    "AC": "0",
+                                  },
+                                  {
+                                    "CompetitorId": competitor2GUID,
+                                    "TV": competitor2TVController.text,
+                                    "RF": competitor2RFController.text,
+                                    "AC": "0",
+                                  },
+                                  {
+                                    "CompetitorId": competitor3GUID,
+                                    "TV": competitor3TVController.text,
+                                    "RF": competitor3RFController.text,
+                                    "AC": "0",
+                                  },
+                                ];
+
+                                Map<String, List<Map<String, String>>> competitorList = {"LocationPointCompetitorLst": items};
+
                                 Point point = Point(
                                   id: DateTime.now().millisecondsSinceEpoch,
-                                  routeName: routeNameController.text,
+                                  pointName: routeNameController.text,
                                   routeDay: routeDay,
                                   shopName: shopNameController.text,
                                   ownerName: ownerNameController.text,
                                   ownerPhone: ownerPhoneController.text,
-                                  isDealer: isDealer,
+                                  isDealer: _selectedisDealerTypes,
                                   city: cityController.text,
-                                  district: districtController.text,
-                                  competitor1TvWalton: tVController.text.toString(),
-                                  competitor1RfWalton: waltonRFController.text.toString(),
-                                  competitor2TvVision: rfController.text.toString(),
-                                  competitor2RfVision: visionRFController.text.toString(),
-                                  competitor3TvMarcel: marcelTVController.text.toString(),
-                                  competitor3RfMinister: ministerRFController.text.toString(),
+                                  district: district,
                                   monthlySaleTv: monthlySaleTVController.text.toString(),
                                   monthlySaleRf: monthlySaleRFController.text.toString(),
                                   monthlySaleAc: monthlySaleACController.text.toString(),
                                   showroomSize: showRoomSizeController.text.toString(),
-                                  displayOut: displayOutController.text.toString(),
-                                  displayIn: displayInController.text.toString(),
                                   lat: snapshot.data.latitude,
                                   lng: snapshot.data.longitude,
                                   files: "",
+                                  shopSubType: _selectedShopTypes,
+                                  registeredName: subShopController.text.toString(),
+                                  competitorList: json.encode(competitorList),
+                                  thana: thana,
                                 );
+
                                 if (internetProvider.connected) {
                                   showDialog(
                                       context: context,
@@ -1097,19 +1262,19 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 districtController.text = "";
                                 routeNameController.text = "";
                                 routeDay = "";
-                                tVController.text = "";
-                                waltonRFController.text = "";
-                                rfController.text = "";
-                                visionRFController.text = "";
-                                marcelTVController.text = "";
-                                ministerRFController.text = "";
+                                competitor1TVController.text = "";
+                                competitor1RFController.text = "";
+                                competitor2TVController.text = "";
+                                competitor2RFController.text = "";
+                                competitor3TVController.text = "";
+                                competitor3RFController.text = "";
                                 monthlySaleTVController.text = "";
                                 monthlySaleRFController.text = "";
                                 monthlySaleACController.text = "";
                                 showRoomSizeController.text = "";
                                 displayOutController.text = "";
                                 displayInController.text = "";
-                                isDealer = false;
+                                isDealer = "";
                                 files = [];
                               } else {
                                 if (routeNameValidator.isValid) {

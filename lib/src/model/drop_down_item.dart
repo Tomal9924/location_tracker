@@ -6,18 +6,12 @@ class DropDownItem {
 
   DropDownItem({@required this.text, @required this.value});
 
-  DropDownItem.fromLookUp(Map<String, dynamic> map) {
-    text = map["DisplayText"];
-    value = map["DataValue"];
-  }
-
-  DropDownItem.fromUserJSON(Map<String, dynamic> map) {
+  DropDownItem.fromJSON(Map<String, dynamic> map) {
     text = map["Name"];
-    value = map["UserId"];
+    value = map["CompetitorId"];
   }
-
-  DropDownItem.fromJSONInvoice(Map<String, dynamic> map) {
-    text = map["InvoiceId"];
-    value = map["InvoiceId"];
+  DropDownItem.fromJSONLookUp(Map<String, dynamic> map) {
+    text = map["DisplayText"];
+    value = map["Id"].toString();
   }
 }

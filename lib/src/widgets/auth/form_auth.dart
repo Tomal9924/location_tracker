@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -149,7 +151,7 @@ class _AuthFormState extends State<AuthForm> {
                             context: context,
                             builder: (context) => AlertDialog(
                                   title: Text("Auth Error"),
-                                  content: Text(authResponse.body),
+                                  content: Text(jsonDecode(authResponse.body)["error_description"]),
                                 ));
                         break;
                     }

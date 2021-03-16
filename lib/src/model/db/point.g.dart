@@ -20,26 +20,18 @@ class PointAdapter extends TypeAdapter<Point> {
       id: fields[0] as int,
       district: fields[1] as String,
       city: fields[2] as String,
-      routeName: fields[3] as String,
+      pointName: fields[3] as String,
       lat: fields[4] as double,
       lng: fields[5] as double,
-      isDealer: fields[6] as bool,
+      isDealer: fields[6] as String,
       routeDay: fields[7] as String,
       shopName: fields[8] as String,
       ownerName: fields[9] as String,
       ownerPhone: fields[10] as String,
-      competitor1TvWalton: fields[11] as String,
-      competitor1RfWalton: fields[12] as String,
-      competitor2TvVision: fields[13] as String,
-      competitor2RfVision: fields[14] as String,
-      competitor3TvMarcel: fields[15] as String,
-      competitor3RfMinister: fields[16] as String,
       monthlySaleTv: fields[17] as String,
       monthlySaleRf: fields[18] as String,
       monthlySaleAc: fields[19] as String,
       showroomSize: fields[20] as String,
-      displayOut: fields[21] as String,
-      displayIn: fields[22] as String,
       files: fields[23] as String,
     );
   }
@@ -55,7 +47,7 @@ class PointAdapter extends TypeAdapter<Point> {
       ..writeByte(2)
       ..write(obj.city)
       ..writeByte(3)
-      ..write(obj.routeName)
+      ..write(obj.pointName)
       ..writeByte(4)
       ..write(obj.lat)
       ..writeByte(5)
@@ -102,9 +94,5 @@ class PointAdapter extends TypeAdapter<Point> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PointAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is PointAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

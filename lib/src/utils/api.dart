@@ -1,5 +1,5 @@
 class Api {
-  static String _baseUrl = "https://jm-api.rmrcloud.com";
+  static String _baseUrl = "http://jme-api.rmrcloud.com";
   static String get token => "$_baseUrl/token";
 
   static String get saveData => "$_baseUrl/api/SaveFloatingPoint";
@@ -8,6 +8,8 @@ class Api {
   static String get floatingPointsDetails => "$_baseUrl/api/GetFloatingPointById";
   static String fileUrl(String path) => "$_baseUrl$path";
 
-  static String get lookUpRugShape => "RugShape";
-  static String get lookUp => "$_baseUrl/api/GetLookupItems";
+  static String get lookUpDistrict => "District";
+  static String get lookUpThana => "Thana";
+  static String get lookUp => "$_baseUrl/api/GetLookupbyKey";
+  static String get getCompetitors => "$_baseUrl/api/GetCompetitorList";
 }
