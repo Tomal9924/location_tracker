@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
-import 'package:location_tracker/src/model/floating_point.dart';
 import 'package:location_tracker/src/model/db/user.dart';
+import 'package:location_tracker/src/model/floating_point.dart';
 import 'package:location_tracker/src/model/floating_point_details.dart';
 import 'package:location_tracker/src/utils/api.dart';
 
@@ -51,7 +51,7 @@ class FloatingPointProvider extends ChangeNotifier {
       "userId": user.guid,
     };
 
-    Response response = await get(Api.floatingPoints, headers: headers);
+    Response response = await get(Api.locationPoints, headers: headers);
     items = {};
     if (response.statusCode == 200) {
       List<Map<String, dynamic>> list = List<Map<String, dynamic>>.from(json.decode(response.body)["fpList"]);
@@ -78,7 +78,7 @@ class FloatingPointProvider extends ChangeNotifier {
       "floatingPointId": guid,
     };
 
-    Response response = await get(Api.floatingPointsDetails, headers: headers);
+    Response response = await get(Api.locationPointsDetails, headers: headers);
     if (response.statusCode == 200) {
       FloatingPointDetails item = FloatingPointDetails.fromJSON(json.decode(response.body));
 

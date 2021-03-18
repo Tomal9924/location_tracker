@@ -317,7 +317,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Route name *",
+                                  Text("Point name *",
                                       style: TextStyles.caption(
                                           context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
