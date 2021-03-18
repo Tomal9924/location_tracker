@@ -284,65 +284,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                             title: "Choose a Thana",
                           ),
                         ),
-                        /*Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("District *",
-                                      style: TextStyles.caption(
-                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  CustomDropDownMenu(
-                                    onSelect: (value) {
-                                      setState(() {
-                                        district = value;
-                                      });
-                                    },
-                                    keyword: Api.lookUpDistrict,
-                                    value: district,
-                                    text: lookUpProvider.displayText(Api.lookUpDistrict, district),
-                                    title: "Choose District",
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Thana *",
-                                      style: TextStyles.caption(
-                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  CustomDropDownMenu(
-                                    onSelect: (value) {
-                                      setState(() {
-                                        thana = value;
-                                      });
-                                    },
-                                    title: "Choose Thana",
-                                    keyword: Api.lookUpThana,
-                                    value: thana,
-                                    text: lookUpProvider.displayText(Api.lookUpThana, thana),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),*/
                         SizedBox(height: 8),
                         //city---------------------------
                         Text("City/village *",
