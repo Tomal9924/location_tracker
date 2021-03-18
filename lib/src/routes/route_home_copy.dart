@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:location_tracker/src/model/competitior.dart';
-import 'package:location_tracker/src/model/db/point.dart';
+import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/drop_down_item.dart';
 import 'package:location_tracker/src/provider/provider_auth.dart';
 import 'package:location_tracker/src/provider/provider_internet.dart';
@@ -17,12 +16,10 @@ import 'package:location_tracker/src/provider/provider_theme.dart';
 import 'package:location_tracker/src/provider/provider_user.dart';
 import 'package:location_tracker/src/routes/route_auth.dart';
 import 'package:location_tracker/src/routes/route_history.dart';
-import 'package:location_tracker/src/utils/api.dart';
 import 'package:location_tracker/src/utils/constants.dart';
 import 'package:location_tracker/src/utils/form_validator.dart';
 import 'package:location_tracker/src/utils/text_styles.dart';
 import 'package:location_tracker/src/widgets/home/widget_sync_now.dart';
-import 'package:location_tracker/src/widgets/widget_custom_dropdown.dart';
 import 'package:location_tracker/src/widgets/widget_dropdown.dart';
 import 'package:location_tracker/src/widgets/widget_multi_select_dropdown.dart';
 import 'package:maps_launcher/maps_launcher.dart';
@@ -38,6 +35,7 @@ class HomeRouteCopy extends StatefulWidget {
 class _HomeRouteCopyState extends State<HomeRouteCopy> {
   final picker = ImagePicker();
   bool isLoading = true;
+
   String routeDay = "";
   String district = "";
   String thana = "";
@@ -139,6 +137,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
       if (!userProvider.isNetworkingCompetitors && userProvider.competitors.isEmpty) {
         userProvider.loadCompetitors();
       }
+      if (!lookUpProvider.isNetworking && lookUpProvider.districtBox.isEmpty && lookUpProvider.thanaBox.isEmpty) {
+        lookUpProvider.loadLookUp();
+      }
     });
     return Scaffold(
       backgroundColor: themeProvider.backgroundColor,
@@ -217,8 +218,73 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                             },
                           ),
                         ),
-                        SizedBox(height: 16),
-                        Row(
+                        SizedBox(height: 8),
+                        Divider(),
+                        SizedBox(height: 8),
+                        Text("District *",
+                            style: TextStyles.caption(
+                                context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        SizedBox(
+                          height: 4,
+                        ),
+                        lookUpProvider.isNetworking
+                            ? Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 54,
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: themeProvider.secondaryColor,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: 256,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: themeProvider.backgroundColor,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        )
+                            : DropDownMenu(
+                          onSelect: (value) {
+                            setState(() {
+                              district = value;
+                            });
+                          },
+                          items: lookUpProvider.getAllDistricts,
+                          value: district,
+                          text: lookUpProvider.districtDisplayText(district),
+                          title: "Choose a District",
+                        ),
+                        SizedBox(height: 8),
+                        Visibility(
+                          visible: district.isNotEmpty,
+                          child: Text("Thana *",
+                              style: TextStyles.caption(
+                                  context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        ),
+                        Visibility(
+                          visible: district.isNotEmpty,
+                          child: SizedBox(
+                            height: 4,
+                          ),
+                        ),
+                        Visibility(
+                          visible: district.isNotEmpty,
+                          child: DropDownMenu(
+                            onSelect: (value) {
+                              setState(() {
+                                thana = value;
+                              });
+                            },
+                            value: thana,
+                            items: lookUpProvider.getAllThana(district),
+                            text: lookUpProvider.thanaDisplayText(thana, district),
+                            title: "Choose a Thana",
+                          ),
+                        ),
+                        /*Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -276,7 +342,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               ),
                             ),
                           ],
-                        ),
+                        ),*/
                         SizedBox(height: 8),
                         //city---------------------------
                         Text("City/village *",
@@ -1196,7 +1262,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
 
                                 Map<String, List<Map<String, String>>> competitorList = {"LocationPointCompetitorLst": items};
 
-                                Point point = Point(
+                                FloatingPoint point = FloatingPoint(
                                   id: DateTime.now().millisecondsSinceEpoch,
                                   pointName: routeNameController.text,
                                   routeDay: routeDay,

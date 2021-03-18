@@ -4,22 +4,26 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
+import 'package:location_tracker/src/model/db/district.dart';
+import 'package:location_tracker/src/model/db/thana.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/model/drop_down_item.dart';
 import 'package:location_tracker/src/utils/api.dart';
 
 class LookUpProvider extends ChangeNotifier {
-  Map<String, List<DropDownItem>> items = HashMap<String, List<DropDownItem>>();
-  Map<String, bool> hasCalled = HashMap<String, bool>();
 
   bool isNetworking = false;
 
   User user;
   Box<User> userBox;
+  Box<District> districtBox;
+  Box<Thana> thanaBox;
 
   init() {
     if (user == null) {
       userBox = Hive.box("users");
+      districtBox = Hive.box("districts");
+      thanaBox = Hive.box("thanas");
       if (userBox.length > 0) {
         user = userBox.getAt(0);
       } else {
@@ -28,18 +32,22 @@ class LookUpProvider extends ChangeNotifier {
     }
   }
 
-  List<DropDownItem> getAll(String keyword) {
-    return items[keyword].toList();
+  List<DropDownItem> get getAllDistricts {
+    List<District> districts = districtBox.values.toList();
+    districts.sort((a,b)=>a.displayText.compareTo(b.displayText));
+    return List.generate(districts.length, (index) => districts[index].toDropDownItem);
   }
 
-  bool isExists(String key) => items.containsKey(key);
+  List<DropDownItem> getAllThana(String district) {
+    List<Thana> thanas = thanaBox.values.where((element) => element.parentDataKey==district).toList();
+    thanas.sort((a,b)=>a.displayText.compareTo(b.displayText));
+    return List.generate(thanas.length, (index) => thanas[index].toDropDownItem);
+  }
 
-  bool hasData(String key) => !hasCalled.containsKey(key) || hasCalled[key];
-
-  Future<void> loadLookUp(String key) async {
+  Future<void> loadLookUp() async {
     init();
 
-    if (isNetworking || !hasData(key))
+    if (isNetworking || districtBox.isNotEmpty || thanaBox.isNotEmpty)
       return;
     else {
       isNetworking = true;
@@ -47,30 +55,52 @@ class LookUpProvider extends ChangeNotifier {
     }
     Map<String, String> headerParams = {
       "Authorization": user.token,
-      "key": key,
+      "key": Api.lookUpKeys,
     };
 
     Response response = await get(Api.lookUp, headers: headerParams);
     if (response.statusCode == 200) {
       Map<String, dynamic> result = Map<String, dynamic>.from(json.decode(response.body));
-      List<DropDownItem> list = [];
       result["data"].forEach((item) {
         if (item["IsActive"] as bool) {
-          list.add(DropDownItem.fromJSONLookUp(item));
+          switch(item["DataKey"]) {
+            case "District":
+              District district = District.fromJSON(item);
+              if(!isDistrictExists(district.dataValue)) {
+                districtBox.add(district);
+              }
+              break;
+            case "Thana":
+              Thana thana = Thana.fromJSON(item);
+              if(!isThanaExists(thana.dataValue)) {
+                thanaBox.add(thana);
+              }
+              break;
+          }
         }
       });
-      items[key] = list;
-      hasCalled[key] = list.isNotEmpty;
     }
     isNetworking = false;
     notifyListeners();
     return;
   }
 
-  String displayText(String key, String value) {
-    if (isExists(key)) {
+  String districtDisplayText(String value) {
+    if (isDistrictExists(value)) {
       try {
-        return getAll(key).firstWhere((element) => element.value == value).text;
+        return getAllDistricts.firstWhere((element) => element.value == value).text;
+      } catch (error) {
+        return "Select one";
+      }
+    } else {
+      return "Select one";
+    }
+  }
+
+  String thanaDisplayText(String value, String district) {
+    if (isThanaExists(value)) {
+      try {
+        return getAllThana(district).firstWhere((element) => element.value == value).text;
       } catch (error) {
         return "Select one";
       }
@@ -81,7 +111,14 @@ class LookUpProvider extends ChangeNotifier {
 
   void destroy() {
     isNetworking = false;
-    items = {};
     notifyListeners();
+  }
+
+  bool isDistrictExists(String value) {
+    return districtBox.values.toList().where((element) => element.dataValue==value).isNotEmpty;
+  }
+
+  bool isThanaExists(String value) {
+    return thanaBox.values.toList().where((element) => element.dataValue==value).isNotEmpty;
   }
 }

@@ -1,22 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'point.dart';
+part of 'floating_point.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class PointAdapter extends TypeAdapter<Point> {
+class FloatingPointAdapter extends TypeAdapter<FloatingPoint> {
   @override
   final int typeId = 1;
 
   @override
-  Point read(BinaryReader reader) {
+  FloatingPoint read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Point(
+    return FloatingPoint(
       id: fields[0] as int,
       district: fields[1] as String,
       city: fields[2] as String,
@@ -41,7 +41,7 @@ class PointAdapter extends TypeAdapter<Point> {
   }
 
   @override
-  void write(BinaryWriter writer, Point obj) {
+  void write(BinaryWriter writer, FloatingPoint obj) {
     writer
       ..writeByte(20)
       ..writeByte(0)
@@ -92,7 +92,7 @@ class PointAdapter extends TypeAdapter<Point> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PointAdapter &&
+      other is FloatingPointAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

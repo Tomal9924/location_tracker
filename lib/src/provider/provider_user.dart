@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
-import 'package:location_tracker/src/model/db/point.dart';
+import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/model/drop_down_item.dart';
 import 'package:location_tracker/src/utils/api.dart';
@@ -13,7 +13,7 @@ import 'package:location_tracker/src/utils/api.dart';
 class UserProvider extends ChangeNotifier {
   User user;
   Box<User> userBox;
-  Box<Point> pointBox;
+  Box<FloatingPoint> pointBox;
   Map<String, DropDownItem> competitors = HashMap();
   bool isNetworking = false;
   bool isNetworkingCompetitors = false;
@@ -28,7 +28,7 @@ class UserProvider extends ChangeNotifier {
       }
     }
 
-    pointBox = Hive.box("points");
+    pointBox = Hive.box("floating_points");
   }
 
   List<DropDownItem> getAllCompetitors(String guid) {
@@ -64,7 +64,7 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<int> saveOnline(Point point, List<File> files) async {
+  Future<int> saveOnline(FloatingPoint point, List<File> files) async {
     try {
       var headers = {
         "Authorization": user.token,
@@ -110,7 +110,7 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> syncData(Point point) async {
+  Future<bool> syncData(FloatingPoint point) async {
     try {
       var headers = {
         "Authorization": user.token,
@@ -160,7 +160,7 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> saveOffline(Point point) async {
+  Future<bool> saveOffline(FloatingPoint point) async {
     try {
       if (pointBox == null) {
         init();

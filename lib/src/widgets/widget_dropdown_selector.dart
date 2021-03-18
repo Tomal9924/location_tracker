@@ -18,6 +18,16 @@ class DropDownSelector extends StatefulWidget {
 }
 
 class _DropDownSelectorState extends State<DropDownSelector> {
+
+  final TextEditingController searchController = TextEditingController();
+
+  List<DropDownItem> list = [];
+
+  @override
+  void initState() {
+    list = widget.items;
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -31,28 +41,61 @@ class _DropDownSelectorState extends State<DropDownSelector> {
         brightness: Brightness.light,
         elevation: 0,
       ),
-      body: ListView.builder(
-        physics: ScrollPhysics(),
-        padding: EdgeInsets.zero,
-        shrinkWrap: true,
-        scrollDirection: Axis.vertical,
-        itemBuilder: (context, index) {
-          final DropDownItem item = widget.items[index];
-          return ListTile(
-            onTap: () {
-              setState(() {
-                widget.value = item.value;
-              });
-              widget.onSelect(item.value);
-            },
-            title: Text(item.text, style: TextStyles.body(context: context, color: themeProvider.textColor)),
-            leading: Icon(
-              widget.value == item.value ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-              color: themeProvider.accentColor,
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              controller: searchController,
+              keyboardType: TextInputType.name,
+              style: TextStyles.body(context: context, color: themeProvider.textColor),
+              cursorColor: themeProvider.accentColor,
+              textInputAction: TextInputAction.search,
+              onChanged: (value) {
+                setState(() {
+                  list = widget.items.where((element) => element.text.toLowerCase().startsWith(value.toLowerCase())).toList();
+                });
+              },
+              decoration: InputDecoration(
+                fillColor: themeProvider.secondaryColor,
+                filled: true,
+                border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(8)),
+                contentPadding: EdgeInsets.all(16),
+                hintText: "search",
+                hintStyle: TextStyles.body(context: context, color: themeProvider.hintColor),
+                helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
+              ),
             ),
-          );
-        },
-        itemCount: widget.items.length,
+          ),
+          Expanded(
+            child: ListView.builder(
+              physics: ScrollPhysics(),
+              padding: EdgeInsets.all(16),
+              shrinkWrap: true,
+              scrollDirection: Axis.vertical,
+              itemBuilder: (context, index) {
+                final DropDownItem item = list[index];
+                return ListTile(
+                  onTap: () {
+                    setState(() {
+                      widget.value = item.value;
+                    });
+                    widget.onSelect(item.value);
+                  },
+                  title: Text(item.text ?? "-", style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                  leading: Icon(
+                    widget.value == item.value ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+                    color: themeProvider.accentColor,
+                  ),
+                  dense: false,
+                  visualDensity: VisualDensity.comfortable,
+                  contentPadding: EdgeInsets.zero,
+                );
+              },
+              itemCount: list.length,
+            ),
+          ),
+        ],
       ),
     );
   }

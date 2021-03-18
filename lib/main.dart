@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
-import 'package:location_tracker/src/model/db/point.dart';
+import 'package:location_tracker/src/model/db/district.dart';
+import 'package:location_tracker/src/model/db/floating_point.dart';
+import 'package:location_tracker/src/model/db/thana.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/provider/provider_auth.dart';
 import 'package:location_tracker/src/provider/provider_internet.dart';
@@ -23,7 +25,9 @@ Future<void> main() async {
   final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   Hive.registerAdapter(UserAdapter());
-  Hive.registerAdapter(PointAdapter());
+  Hive.registerAdapter(FloatingPointAdapter());
+  Hive.registerAdapter(DistrictAdapter());
+  Hive.registerAdapter(ThanaAdapter());
   runApp(
     MultiProvider(child: MyApp(), providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
@@ -115,7 +119,9 @@ class _LauncherRouteState extends State<LauncherRoute> {
   redirect() async {
     try {
       Box<User> userBox = await Hive.openBox("users");
-      Box<Point> pointBox = await Hive.openBox("points");
+      Box<FloatingPoint> floatingPointBox = await Hive.openBox("floating_points");
+      Box<District> districtBox = await Hive.openBox("districts");
+      Box<Thana> thanaBox = await Hive.openBox("thanas");
       User user;
       if (userBox.length > 0) {
         user = userBox.getAt(0);

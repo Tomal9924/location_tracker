@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:location_tracker/src/utils/constants.dart';
 
-part 'point.g.dart';
+part 'floating_point.g.dart';
 
-@HiveType(adapterName: "PointAdapter", typeId: tablePoint)
-class Point {
+@HiveType(adapterName: "FloatingPointAdapter", typeId: tableFloatingPoint)
+class FloatingPoint {
   @HiveField(0)
   int id;
   @HiveField(1)
@@ -47,7 +47,7 @@ class Point {
   @HiveField(19)
   String thana;
 
-  Point(
+  FloatingPoint(
       {@required this.id,
       @required this.district,
       @required this.city,
