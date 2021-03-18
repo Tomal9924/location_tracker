@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
+import 'package:location_tracker/src/model/competitior.dart';
 import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/model/drop_down_item.dart';
@@ -14,6 +15,7 @@ class UserProvider extends ChangeNotifier {
   User user;
   Box<User> userBox;
   Box<FloatingPoint> pointBox;
+  Box<Competitor> competitorBox;
   Map<String, DropDownItem> competitors = HashMap();
   bool isNetworking = false;
   bool isNetworkingCompetitors = false;
