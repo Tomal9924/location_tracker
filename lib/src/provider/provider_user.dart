@@ -1,11 +1,10 @@
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
-import 'package:location_tracker/src/model/competitior.dart';
+import 'package:location_tracker/src/model/db/competitor.dart';
 import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/model/drop_down_item.dart';
@@ -16,13 +15,13 @@ class UserProvider extends ChangeNotifier {
   Box<User> userBox;
   Box<FloatingPoint> pointBox;
   Box<Competitor> competitorBox;
-  Map<String, DropDownItem> competitors = HashMap();
   bool isNetworking = false;
   bool isNetworkingCompetitors = false;
 
   init() {
     if (user == null) {
       userBox = Hive.box("users");
+      competitorBox = Hive.box("competitors");
       if (userBox.length > 0) {
         user = userBox.getAt(0);
       } else {
@@ -33,16 +32,16 @@ class UserProvider extends ChangeNotifier {
     pointBox = Hive.box("floating_points");
   }
 
-  List<DropDownItem> getAllCompetitors(String guid) {
-    List<DropDownItem> list = competitors.values.toList();
-    list.removeWhere((element) => element.value == guid);
-    return list;
+  List<DropDownItem> getAllCompetitors(String competitor1,String competitor2,String competitor3) {
+    List<Competitor> list = competitorBox.values.toList();
+    list.removeWhere((element) => element.competitorId == competitor1 || element.competitorId == competitor2 || element.competitorId == competitor3);
+    return List.generate(list.length, (index) => list[index].toDropDownItem);
   }
 
   Future<void> loadCompetitors() async {
     init();
     try {
-      if (isNetworkingCompetitors)
+      if (isNetworkingCompetitors|| competitorBox.isNotEmpty)
         return;
       else {
         isNetworkingCompetitors = true;
@@ -54,8 +53,10 @@ class UserProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         List<Map<String, dynamic>> result = List<Map<String, dynamic>>.from(json.decode(response.body)["cmpList"]);
         result.forEach((element) {
-          DropDownItem dropDownItem = DropDownItem.fromJSON(element);
-          competitors[dropDownItem.value] = dropDownItem;
+          Competitor competitor = Competitor.fromJSON(element);
+          if(!isCompetitorExists(competitor.competitorId)) {
+            competitorBox.add(competitor);
+          }
         });
       }
       isNetworkingCompetitors = false;
@@ -66,29 +67,29 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<int> saveOnline(FloatingPoint point, List<File> files) async {
+  Future<StreamedResponse> saveOnline(FloatingPoint point, List<File> files) async {
     try {
       var headers = {
         "Authorization": user.token,
         "UserId": user.guid,
-        "PointName": point.pointName.toString(),
-        "RouteDay": point.routeDay,
-        "District": point.district,
-        "Thana": point.thana,
-        "CityVillage": point.city,
+        "PointName": point.pointName.toString().trim(),
+        "RouteDay": point.routeDay.trim(),
+        "District": point.district.trim(),
+        "Thana": point.thana.trim(),
+        "CityVillage": point.city.trim(),
         "Lat": point.lat.toString(),
         "Lng": point.lng.toString(),
-        "LocationType": point.isDealer.toString(),
-        "ShopType": point.shopSubType.toString(),
-        "RegisteredName": point.registeredName.toString(),
-        "ShopName": point.shopName,
-        "OwnerName": point.ownerName,
-        "OwnerPhone": point.ownerPhone,
-        "MonthlySaleTv": point.monthlySaleTv,
-        "MonthlySaleRf": point.monthlySaleRf,
-        "MonthlySaleAc": point.monthlySaleAc,
-        "ShowroomSize": point.showroomSize,
-        "CompetitorList": point.competitorList,
+        "LocationType": point.isDealer.toString().trim(),
+        "ShopType": point.shopSubType.toString().trim(),
+        "RegisteredName": point.registeredName.toString().trim(),
+        "ShopName": point.shopName.trim(),
+        "OwnerName": point.ownerName.trim(),
+        "OwnerPhone": point.ownerPhone.trim(),
+        "MonthlySaleTv": point.monthlySaleTv.trim(),
+        "MonthlySaleRf": point.monthlySaleRf.trim(),
+        "MonthlySaleAc": point.monthlySaleAc.trim(),
+        "ShowroomSize": point.showroomSize.trim(),
+        "CompetitorList": point.competitorList.trim(),
       };
 
       var request = MultipartRequest(
@@ -104,11 +105,10 @@ class UserProvider extends ChangeNotifier {
       request.headers.addAll(Map<String, String>.from(headers));
 
       var response = await request.send();
-      await response.stream.bytesToString();
-      return response.statusCode;
+      return response;
     } catch (error) {
       print(error);
-      return 500;
+      return null;
     }
   }
 
@@ -198,5 +198,21 @@ class UserProvider extends ChangeNotifier {
       pointBox.deleteAt(0);
     }
     notifyListeners();
+  }
+
+  bool isCompetitorExists(String value) {
+    return competitorBox.values.toList().where((element) => element.competitorId==value).isNotEmpty;
+  }
+
+  String displayText(String value) {
+    if (isCompetitorExists(value)) {
+      try {
+        return competitorBox.values.toList().firstWhere((element) => element.competitorId == value).name;
+      } catch (error) {
+        return "Select one";
+      }
+    } else {
+      return "Select one";
+    }
   }
 }

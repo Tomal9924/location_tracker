@@ -82,7 +82,7 @@ class _DropDownSelectorState extends State<DropDownSelector> {
                     });
                     widget.onSelect(item.value);
                   },
-                  title: Text(item.text ?? "-", style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                  title: Text(item.text.trim() ?? "-", style: TextStyles.body(context: context, color: themeProvider.textColor)),
                   leading: Icon(
                     widget.value == item.value ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
                     color: themeProvider.accentColor,

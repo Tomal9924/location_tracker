@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
-import 'package:location_tracker/src/model/competitior.dart';
 import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/drop_down_item.dart';
 import 'package:location_tracker/src/provider/provider_auth.dart';
@@ -21,7 +21,6 @@ import 'package:location_tracker/src/utils/form_validator.dart';
 import 'package:location_tracker/src/utils/text_styles.dart';
 import 'package:location_tracker/src/widgets/home/widget_sync_now.dart';
 import 'package:location_tracker/src/widgets/widget_dropdown.dart';
-import 'package:location_tracker/src/widgets/widget_multi_select_dropdown.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:provider/provider.dart';
 
@@ -40,7 +39,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   String district = "";
   String thana = "";
   List<File> files = [];
-  List<Competitor> competitorsList = [];
   String isDealer = "";
   List<DropDownItem> dealerTypes = [
     DropDownItem(text: "Dealer", value: "Dealer"),
@@ -64,6 +62,15 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
     DropDownItem(text: "Nikolas", value: "Nikolas"),
     DropDownItem(text: "Raju", value: "Raju"),
     DropDownItem(text: "Mina", value: "Mina"),
+  ];
+  List<DropDownItem> routeDays = [
+    DropDownItem(text: "Saturday", value: "Saturday"),
+    DropDownItem(text: "Sunday", value: "Sunday"),
+    DropDownItem(text: "Monday", value: "Monday"),
+    DropDownItem(text: "Tuesday", value: "Tuesday"),
+    DropDownItem(text: "Wednesday", value: "Wednesday"),
+    DropDownItem(text: "Thursday", value: "Thursday"),
+    DropDownItem(text: "Friday", value: "Friday"),
   ];
   String competitor1GUID = "";
   String competitor2GUID = "";
@@ -134,7 +141,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
     internetProvider.listen();
     lookUpProvider.init();
     Future.delayed(Duration.zero, () {
-      if (!userProvider.isNetworkingCompetitors && userProvider.competitors.isEmpty) {
+      if (!userProvider.isNetworkingCompetitors && userProvider.competitorBox.isEmpty) {
         userProvider.loadCompetitors();
       }
       if (!lookUpProvider.isNetworking && lookUpProvider.districtBox.isEmpty && lookUpProvider.thanaBox.isEmpty) {
@@ -211,8 +218,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           child: ListTile(
                             tileColor: themeProvider.secondaryColor,
                             leading: Icon(Icons.location_on_outlined),
-                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}",
-                                style: TextStyles.body(context: context, color: themeProvider.hintColor)),
+                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}", style: TextStyles.body(context: context, color: themeProvider.hintColor)),
                             onTap: () {
                               MapsLauncher.launchCoordinates(snapshot.data.latitude, snapshot.data.longitude);
                             },
@@ -221,48 +227,44 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 8),
                         Divider(),
                         SizedBox(height: 8),
-                        Text("District *",
-                            style: TextStyles.caption(
-                                context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("District *", style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(
                           height: 4,
                         ),
                         lookUpProvider.isNetworking
                             ? Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 54,
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: themeProvider.secondaryColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            width: 256,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: themeProvider.backgroundColor,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        )
+                                width: MediaQuery.of(context).size.width,
+                                height: 54,
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: themeProvider.secondaryColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: 256,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: themeProvider.backgroundColor,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              )
                             : DropDownMenu(
-                          onSelect: (value) {
-                            setState(() {
-                              district = value;
-                            });
-                          },
-                          items: lookUpProvider.getAllDistricts,
-                          value: district,
-                          text: lookUpProvider.districtDisplayText(district),
-                          title: "Choose a District",
-                        ),
+                                onSelect: (value) {
+                                  setState(() {
+                                    district = value;
+                                  });
+                                },
+                                items: lookUpProvider.getAllDistricts,
+                                value: district,
+                                text: lookUpProvider.districtDisplayText(district),
+                                title: "Choose a District",
+                              ),
                         SizedBox(height: 8),
                         Visibility(
                           visible: district.isNotEmpty,
-                          child: Text("Thana *",
-                              style: TextStyles.caption(
-                                  context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                          child: Text("Thana *", style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
                         Visibility(
                           visible: district.isNotEmpty,
@@ -286,8 +288,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 8),
                         //city---------------------------
-                        Text("City/village *",
-                            style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("City/village *", style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: cityController,
@@ -325,8 +326,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text("Point name *",
-                                      style: TextStyles.caption(
-                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                      style: TextStyles.caption(context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
                                     height: 4,
                                   ),
@@ -334,8 +334,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                     controller: routeNameController,
                                     focusNode: routeNameFocusNode,
                                     keyboardType: TextInputType.text,
-                                    style: TextStyles.body(
-                                        context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
+                                    style: TextStyles.body(context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                                     cursorColor: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
                                     textInputAction: TextInputAction.next,
                                     onChanged: (value) {
@@ -365,22 +364,19 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Day*",
-                                      style: TextStyles.caption(
-                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  Text("Day*", style: TextStyles.caption(context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
                                     height: 4,
                                   ),
-                                  DropDownMultiSelectMenu(
-                                      values: routeDay.split(", "),
+                                  DropDownMenu(
+                                      value: routeDay,
                                       text: routeDay,
+                                      items: routeDays,
                                       title: "Select route day",
-                                      onSelect: (items) {
+                                      onSelect: (item) {
                                         FocusScope.of(context).requestFocus(FocusNode());
                                         setState(() {
-                                          routeDay = items.join(", ");
-                                          routeDay = routeDay.startsWith(", ") ? routeDay.substring(2) : routeDay;
-                                          print(routeDay);
+                                          routeDay = item;
                                         });
                                       }),
                                 ],
@@ -404,9 +400,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               });
                             },
                             title: 'Choose brands',
-                            text: _selectedisDealerTypes.isEmpty
-                                ? "Select one"
-                                : dealerTypes.firstWhere((element) => element.value == _selectedisDealerTypes).text),
+                            text: _selectedisDealerTypes.isEmpty ? "Select one" : dealerTypes.firstWhere((element) => element.value == _selectedisDealerTypes).text),
                         Visibility(
                           visible: _selectedisDealerTypes == "Shop",
                           child: Container(
@@ -424,7 +418,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           ),
                         ),
                         Visibility(
-                          visible: _selectedShopTypes == "Registered",
+                          visible: _selectedisDealerTypes == "Shop" && _selectedShopTypes == "Registered",
                           child: Container(
                             margin: EdgeInsets.only(top: 8),
                             child: TextField(
@@ -477,8 +471,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 16),
                         //owner name-------------------
-                        Text("Owner Name *",
-                            style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("Owner Name *", style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: ownerNameController,
@@ -505,9 +498,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 16),
                         //owner name-------------------
-                        Text("Owner Phone *",
-                            style:
-                                TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("Owner Phone *", style: TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: ownerPhoneController,
@@ -553,19 +544,20 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               height: 8,
                             ),
                             DropDownMenu(
-                                items: userProvider.getAllCompetitors(competitor1GUID),
-                                value: competitor1GUID,
-                                onSelect: (value) {
-                                  setState(() {
-                                    competitor1GUID = value;
-                                  });
-                                },
-                                title: 'Choose brands',
-                                text: userProvider.isNetworkingCompetitors
-                                    ? "Please wait..."
-                                    : competitor1GUID.isEmpty
-                                        ? "Select one"
-                                        : userProvider.competitors.values.firstWhere((element) => element.value == competitor1GUID).text),
+                              items: userProvider.getAllCompetitors(competitor1GUID, competitor2GUID, competitor3GUID),
+                              value: competitor1GUID,
+                              onSelect: (value) {
+                                setState(() {
+                                  competitor1GUID = value;
+                                });
+                              },
+                              title: 'Choose brands',
+                              text: userProvider.isNetworkingCompetitors
+                                  ? "Please wait..."
+                                  : competitor1GUID.isEmpty
+                                      ? "Select one"
+                                      : userProvider.displayText(competitor1GUID),
+                            ),
                             SizedBox(
                               height: 8,
                             ),
@@ -689,19 +681,20 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               height: 8,
                             ),
                             DropDownMenu(
-                                items: userProvider.getAllCompetitors(competitor2GUID),
-                                value: competitor2GUID,
-                                onSelect: (value) {
-                                  setState(() {
-                                    competitor2GUID = value;
-                                  });
-                                },
-                                title: 'Choose brands',
-                                text: userProvider.isNetworkingCompetitors
-                                    ? "Please wait..."
-                                    : competitor2GUID.isEmpty
-                                        ? "Select one"
-                                        : userProvider.competitors.values.firstWhere((element) => element.value == competitor2GUID).text),
+                              items: userProvider.getAllCompetitors(competitor1GUID, competitor2GUID, competitor3GUID),
+                              value: competitor2GUID,
+                              onSelect: (value) {
+                                setState(() {
+                                  competitor2GUID = value;
+                                });
+                              },
+                              title: 'Choose brands',
+                              text: userProvider.isNetworkingCompetitors
+                                  ? "Please wait..."
+                                  : competitor2GUID.isEmpty
+                                      ? "Select one"
+                                      : userProvider.displayText(competitor2GUID),
+                            ),
                             SizedBox(
                               height: 8,
                             ),
@@ -825,19 +818,16 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               height: 8,
                             ),
                             DropDownMenu(
-                                items: userProvider.getAllCompetitors(competitor3GUID),
-                                value: competitor3GUID,
-                                onSelect: (value) {
-                                  setState(() {
-                                    competitor3GUID = value;
-                                  });
-                                },
-                                title: 'Choose brands',
-                                text: userProvider.isNetworkingCompetitors
-                                    ? "Please wait..."
-                                    : competitor3GUID.isEmpty
-                                        ? "Select one"
-                                        : userProvider.competitors.values.firstWhere((element) => element.value == competitor3GUID).text),
+                              items: userProvider.getAllCompetitors(competitor1GUID, competitor2GUID, competitor3GUID),
+                              value: competitor3GUID,
+                              onSelect: (value) {
+                                setState(() {
+                                  competitor3GUID = value;
+                                });
+                              },
+                              title: 'Choose brands',
+                              text: userProvider.displayText(competitor3GUID),
+                            ),
                             SizedBox(
                               height: 8,
                             ),
@@ -1106,7 +1096,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Upload Image", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
+                            Text("Upload Image *", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
                             SizedBox(height: 4),
                             InkWell(
                               onTap: () {
@@ -1119,7 +1109,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 child: Icon(
                                   Icons.add_photo_alternate_outlined,
                                   size: 64,
-                                  color: themeProvider.shadowColor,
+                                  color: files.isEmpty ? themeProvider.errorColor : themeProvider.shadowColor,
                                 ),
                               ),
                             ),
@@ -1179,7 +1169,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   ownerNameValidator.isValid &&
                                   ownerPhoneValidator.isValid &&
                                   cityValidator.isValid &&
-                                  districtValidator.isValid) {
+                                  districtValidator.isValid && files.isNotEmpty) {
                                 List<Map<String, String>> items = [
                                   {
                                     "CompetitorId": competitor1GUID,
@@ -1235,9 +1225,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                           content: Container(width: 128, height: 128, child: Center(child: CircularProgressIndicator())),
                                         );
                                       });
-                                  var response = await userProvider.saveOnline(point, files);
+                                  StreamedResponse response = await userProvider.saveOnline(point, files);
                                   Navigator.of(context).pop();
-                                  if (response == 500) {
+                                  if (response == null) {
                                     showDialog(
                                         context: context,
                                         barrierDismissible: true,
@@ -1253,7 +1243,58 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                             ),
                                           );
                                         });
+                                  }
+                                  else if (response.statusCode != 200) {
+                                    String result = await response.stream.bytesToString();
+                                    showDialog(
+                                        context: context,
+                                        barrierDismissible: true,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            content: Container(
+                                              decoration: BoxDecoration(color: Colors.white),
+                                              width: 300,
+                                              child: Text(
+                                                result,
+                                                style: TextStyles.body(context: context, color: Colors.red),
+                                              ),
+                                            ),
+                                          );
+                                        });
                                   } else {
+                                    setState(() {
+                                      district = "";
+                                      thana = "";
+                                      _selectedisDealerTypes = "";
+                                      _selectedShopTypes = "";
+                                      _selectedSubShopTypes = "";
+                                      competitor1GUID = "";
+                                      competitor2GUID = "";
+                                      competitor3GUID = "";
+                                      shopNameController.text = "";
+                                      ownerNameController.text = "";
+                                      ownerPhoneController.text = "";
+                                      thanaController.text = "";
+                                      cityController.text = "";
+                                      districtController.text = "";
+                                      routeNameController.text = "";
+                                      routeDay = "";
+                                      competitor1TVController.text = "";
+                                      competitor1RFController.text = "";
+                                      competitor1ACController.text = "";
+                                      competitor2TVController.text = "";
+                                      competitor2RFController.text = "";
+                                      competitor2ACController.text = "";
+                                      competitor3TVController.text = "";
+                                      competitor3RFController.text = "";
+                                      competitor3ACController.text = "";
+                                      monthlySaleTVController.text = "";
+                                      monthlySaleRFController.text = "";
+                                      monthlySaleACController.text = "";
+                                      showRoomSizeController.text = "";
+                                      isDealer = "";
+                                      files = [];
+                                    });
                                     showDialog(
                                         context: context,
                                         barrierDismissible: true,
@@ -1275,12 +1316,44 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   point.files = filePaths;
                                   bool result = await userProvider.saveOffline(point);
                                   if (result) {
+                                    setState(() {
+                                      district = "";
+                                      thana = "";
+                                      _selectedisDealerTypes = "";
+                                      _selectedShopTypes = "";
+                                      _selectedSubShopTypes = "";
+                                      competitor1GUID = "";
+                                      competitor2GUID = "";
+                                      competitor3GUID = "";
+                                      shopNameController.text = "";
+                                      ownerNameController.text = "";
+                                      ownerPhoneController.text = "";
+                                      thanaController.text = "";
+                                      cityController.text = "";
+                                      districtController.text = "";
+                                      routeNameController.text = "";
+                                      routeDay = "";
+                                      competitor1TVController.text = "";
+                                      competitor1RFController.text = "";
+                                      competitor1ACController.text = "";
+                                      competitor2TVController.text = "";
+                                      competitor2RFController.text = "";
+                                      competitor2ACController.text = "";
+                                      competitor3TVController.text = "";
+                                      competitor3RFController.text = "";
+                                      competitor3ACController.text = "";
+                                      monthlySaleTVController.text = "";
+                                      monthlySaleRFController.text = "";
+                                      monthlySaleACController.text = "";
+                                      showRoomSizeController.text = "";
+                                      isDealer = "";
+                                      files = [];
+                                    });
                                     showDialog(
                                         context: context,
                                         builder: (context) => AlertDialog(
                                               title: Text("Success", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
-                                              content: Text(
-                                                  "You've saves '${point.shopName}' in offline mode. Please sync the activity once internet is available",
+                                              content: Text("You've saves '${point.shopName}' in offline mode. Please sync the activity once internet is available",
                                                   style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   } else {
@@ -1288,32 +1361,10 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                               title: Text("Error", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
-                                              content: Text("Failed to save data while offline",
-                                                  style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                                              content: Text("Failed to save data while offline", style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   }
                                 }
-
-                                shopNameController.text = "";
-                                ownerNameController.text = "";
-                                ownerPhoneController.text = "";
-                                thanaController.text = "";
-                                cityController.text = "";
-                                districtController.text = "";
-                                routeNameController.text = "";
-                                routeDay = "";
-                                competitor1TVController.text = "";
-                                competitor1RFController.text = "";
-                                competitor2TVController.text = "";
-                                competitor2RFController.text = "";
-                                competitor3TVController.text = "";
-                                competitor3RFController.text = "";
-                                monthlySaleTVController.text = "";
-                                monthlySaleRFController.text = "";
-                                monthlySaleACController.text = "";
-                                showRoomSizeController.text = "";
-                                isDealer = "";
-                                files = [];
                               } else {
                                 if (routeNameValidator.isValid) {
                                   FocusScope.of(context).requestFocus(routeNameFocusNode);
@@ -1398,6 +1449,14 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
       return "$resultFirstPart$resultMiddlePart$resultLastPart";
     } else {
       return actualString;
+    }
+  }
+
+  String routeDisplayText(String value) {
+    try {
+      return routeDays.firstWhere((element) => element.value == value).text;
+    } catch (error) {
+      return "Select one";
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:location_tracker/src/model/db/competitor.dart';
 import 'package:location_tracker/src/model/db/district.dart';
 import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/db/thana.dart';
@@ -28,6 +29,7 @@ Future<void> main() async {
   Hive.registerAdapter(FloatingPointAdapter());
   Hive.registerAdapter(DistrictAdapter());
   Hive.registerAdapter(ThanaAdapter());
+  Hive.registerAdapter(CompetitorAdapter());
   runApp(
     MultiProvider(child: MyApp(), providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
@@ -122,6 +124,7 @@ class _LauncherRouteState extends State<LauncherRoute> {
       Box<FloatingPoint> floatingPointBox = await Hive.openBox("floating_points");
       Box<District> districtBox = await Hive.openBox("districts");
       Box<Thana> thanaBox = await Hive.openBox("thanas");
+      Box<Competitor> competitorBox = await Hive.openBox("competitors");
       User user;
       if (userBox.length > 0) {
         user = userBox.getAt(0);

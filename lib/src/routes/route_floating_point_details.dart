@@ -89,7 +89,7 @@ class FloatingPointDetailsRoute extends StatelessWidget {
                 ),
                 ListTile(
                   leading: Icon(Icons.location_on_outlined, color: themeProvider.hintColor),
-                  title: Text(details.city, style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                  title: Text(details.thana??"", style: TextStyles.body(context: context, color: themeProvider.textColor)),
                   subtitle: Text(details.district, style: TextStyles.body(context: context, color: themeProvider.textColor)),
                   dense: true,
                   visualDensity: VisualDensity.compact,
@@ -102,72 +102,6 @@ class FloatingPointDetailsRoute extends StatelessWidget {
                   onTap: (){
                     MapsLauncher.launchCoordinates(details.lat, details.lng);
                   },
-                ),
-                Divider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    "Competitor 1",
-                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(Icons.tv, color: themeProvider.hintColor),
-                  title: Text(details.waltonTV, style: TextStyles.body(context: context, color: themeProvider.textColor)),
-                  subtitle: Text("Walton TV", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
-                ),
-                ListTile(
-                  leading: Icon(MdiIcons.fridgeOutline, color: themeProvider.hintColor),
-                  title: Text(details.waltonRF, style: TextStyles.body(context: context, color: themeProvider.textColor)),
-                  subtitle: Text("Walton RF", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
-                ),
-                Divider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    "Competitor 2",
-                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(Icons.tv, color: themeProvider.hintColor),
-                  title: Text(details.visionTV, style: TextStyles.body(context: context, color: themeProvider.textColor)),
-                  subtitle: Text("Vision TV", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
-                ),
-                ListTile(
-                  leading: Icon(MdiIcons.fridgeOutline, color: themeProvider.hintColor),
-                  title: Text(details.visionRF, style: TextStyles.body(context: context, color: themeProvider.textColor)),
-                  subtitle: Text("Vision RF", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
-                ),
-                Divider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    "Competitor 3",
-                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(Icons.tv, color: themeProvider.hintColor),
-                  title: Text(details.marcelTV, style: TextStyles.body(context: context, color: themeProvider.textColor)),
-                  subtitle: Text("Marcel TV", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
-                ),
-                ListTile(
-                  leading: Icon(MdiIcons.fridgeOutline, color: themeProvider.hintColor),
-                  title: Text(details.ministerRF, style: TextStyles.body(context: context, color: themeProvider.textColor)),
-                  subtitle: Text("Minister RF", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
                 ),
                 Visibility(visible: details.files.isNotEmpty, child: Divider()),
                 Visibility(

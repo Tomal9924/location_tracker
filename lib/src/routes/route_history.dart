@@ -71,7 +71,7 @@ class HistoryRoute extends StatelessWidget {
                   child: ListView.builder(
                     physics: AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(0),
-                    shrinkWrap: true,
+                    shrinkWrap: false,
                     scrollDirection: Axis.vertical,
                     itemBuilder: (context, index) {
                       FloatingPoint point = floatingPointProvider.getAll()[index];
@@ -80,7 +80,7 @@ class HistoryRoute extends StatelessWidget {
                         expandedCrossAxisAlignment: CrossAxisAlignment.start,
                         childrenPadding: EdgeInsets.symmetric(horizontal: 16),
                         subtitle: Text(
-                          "${point.city}, ${point.district}",
+                          "${point.thana}, ${point.district}",
                           style: TextStyles.caption(context: context, color: themeProvider.hintColor),
                         ),
                         leading: Icon(point.isDealer ? Icons.domain : Icons.store, color: themeProvider.hintColor),

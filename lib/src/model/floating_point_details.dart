@@ -6,8 +6,9 @@ class FloatingPointDetails {
   String shopName;
   String ownerName;
   String ownerPhone;
-  String city;
+  String thana;
   String district;
+  String cityVillage;
   bool isDealer;
   double lat;
   double lng;
@@ -29,14 +30,15 @@ class FloatingPointDetails {
 
   FloatingPointDetails.fromJSON(Map<String, dynamic> map) {
     id = map["fpDetails"]["Id"];
-    guid = map["fpDetails"]["FloatingPointId"];
-    routeName = map["fpDetails"]["Name"];
+    guid = map["fpDetails"]["LocationPointId"];
+    routeName = map["fpDetails"]["PointName"];
     routeDay = map["fpDetails"]["RouteDay"];
     shopName = map["fpDetails"]["ShopName"];
     ownerName = map["fpDetails"]["OwnerName"];
     ownerPhone = map["fpDetails"]["OwnerPhone"];
-    city = map["fpDetails"]["City"];
+    thana = map["fpDetails"]["City"];
     district = map["fpDetails"]["District"];
+    cityVillage = map["fpDetails"]["CityVillage"];
     isDealer = map["fpDetails"]["IsDealer"] ?? false;
     map["fpImageList"].forEach((image) {
       files.add(image["ImageLocation"]);

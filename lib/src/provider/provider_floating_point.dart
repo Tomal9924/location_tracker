@@ -75,7 +75,7 @@ class FloatingPointProvider extends ChangeNotifier {
     }
     Map<String, String> headers = {
       "authorization": user.token,
-      "floatingPointId": guid,
+      "locationPointId": guid,
     };
 
     Response response = await get(Api.locationPointsDetails, headers: headers);

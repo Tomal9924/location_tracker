@@ -4,7 +4,7 @@ class FloatingPoint {
   String shopName;
   String ownerName;
   String ownerPhone;
-  String city;
+  String thana;
   String district;
   bool isDealer;
   double lat;
@@ -14,13 +14,13 @@ class FloatingPoint {
 
   FloatingPoint.fromJSON(Map<String, dynamic> map) {
     id = map["Id"];
-    guid = map["FloatingPointId"];
+    guid = map["LocationPointId"];
     shopName = map["ShopName"];
     ownerName = map["OwnerName"];
     ownerPhone = map["OwnerPhone"];
-    city = map["City"];
+    thana = map["Thana"];
     district = map["District"];
-    isDealer = map["IsDealer"]?? false;
+    isDealer = map["LocationType"]=="Dealer"?? false;
     try {
       lat = double.parse(map["Lat"]) ?? 0;
       lng = double.parse(map["Lng"]) ?? 0;
