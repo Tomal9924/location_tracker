@@ -38,9 +38,24 @@ class SyncData extends StatelessWidget {
               userProvider.pointBox.values.forEach((element) async {
                 showDialog(context: context, builder: (context) => SyncLoader(), barrierDismissible: false);
                 bool result = await userProvider.syncData(element);
-                print(result);
                 Navigator.of(context).pop();
-                if(!result) {
+                userProvider.clearUnSyncData();
+                showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          "Success",
+                          style: TextStyles.body(context: context, color: themeProvider.accentColor),
+                        ),
+                        content: Text(
+                          "Data saved successfully",
+                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                        ),
+                      );
+                    });
+                if (!result) {
                   return;
                 } else {
                   userProvider.clearTop();

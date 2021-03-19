@@ -1367,7 +1367,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         builder: (context) => AlertDialog(
                                               title: Text("Success", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
                                               content: Text(
-                                                  "You've saves '${point.shopName}' in offline mode. Please sync the activity once internet is available",
+                                                  "You've saved '${point.shopName}' in offline mode. Please sync the activity once internet is available",
                                                   style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   } else {
