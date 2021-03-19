@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:location_tracker/src/provider/provider_theme.dart';
 import 'package:location_tracker/src/provider/provider_user.dart';
-import 'package:location_tracker/src/utils/text_styles.dart';
 import 'package:provider/provider.dart';
 
 class SyncLoader extends StatelessWidget {
@@ -11,7 +10,6 @@ class SyncLoader extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final userProvider = Provider.of<UserProvider>(context);
     userProvider.init();
-    final int length = userProvider.unSyncDataLength;
     return Center(
       child: SizedBox(
         width: 112,
@@ -35,8 +33,6 @@ class SyncLoader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.sync, color: themeProvider.backgroundColor, size: 32,),
-                    SizedBox(height: 4),
-                    Text("$length items left", style: TextStyles.caption(context: context, color: themeProvider.backgroundColor)),
                   ],
                 ),
               ),
