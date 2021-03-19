@@ -218,7 +218,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           child: ListTile(
                             tileColor: themeProvider.secondaryColor,
                             leading: Icon(Icons.location_on_outlined),
-                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}", style: TextStyles.body(context: context, color: themeProvider.hintColor)),
+                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}",
+                                style: TextStyles.body(context: context, color: themeProvider.hintColor)),
                             onTap: () {
                               MapsLauncher.launchCoordinates(snapshot.data.latitude, snapshot.data.longitude);
                             },
@@ -227,7 +228,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 8),
                         Divider(),
                         SizedBox(height: 8),
-                        Text("District *", style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("District *",
+                            style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(
                           height: 4,
                         ),
@@ -264,7 +266,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 8),
                         Visibility(
                           visible: district.isNotEmpty,
-                          child: Text("Thana *", style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                          child: Text("Thana *",
+                              style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
                         Visibility(
                           visible: district.isNotEmpty,
@@ -288,7 +291,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 8),
                         //city---------------------------
-                        Text("City/village *", style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("City/village *",
+                            style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: cityController,
@@ -325,8 +329,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Point name *",
-                                      style: TextStyles.caption(context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  Text("Route name *",
+                                      style: TextStyles.caption(
+                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
                                     height: 4,
                                   ),
@@ -334,7 +339,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                     controller: routeNameController,
                                     focusNode: routeNameFocusNode,
                                     keyboardType: TextInputType.text,
-                                    style: TextStyles.body(context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
+                                    style: TextStyles.body(
+                                        context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                                     cursorColor: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
                                     textInputAction: TextInputAction.next,
                                     onChanged: (value) {
@@ -364,7 +370,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Day*", style: TextStyles.caption(context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  Text("Day*",
+                                      style: TextStyles.caption(
+                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
                                     height: 4,
                                   ),
@@ -400,7 +408,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               });
                             },
                             title: 'Choose brands',
-                            text: _selectedisDealerTypes.isEmpty ? "Select one" : dealerTypes.firstWhere((element) => element.value == _selectedisDealerTypes).text),
+                            text: _selectedisDealerTypes.isEmpty
+                                ? "Select one"
+                                : dealerTypes.firstWhere((element) => element.value == _selectedisDealerTypes).text),
                         Visibility(
                           visible: _selectedisDealerTypes == "Shop",
                           child: Container(
@@ -471,7 +481,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 16),
                         //owner name-------------------
-                        Text("Owner Name *", style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("Owner Name *",
+                            style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: ownerNameController,
@@ -498,7 +509,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 16),
                         //owner name-------------------
-                        Text("Owner Phone *", style: TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("Owner Phone *",
+                            style:
+                                TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: ownerPhoneController,
@@ -1169,7 +1182,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   ownerNameValidator.isValid &&
                                   ownerPhoneValidator.isValid &&
                                   cityValidator.isValid &&
-                                  districtValidator.isValid && files.isNotEmpty) {
+                                  districtValidator.isValid &&
+                                  files.isNotEmpty) {
                                 List<Map<String, String>> items = [
                                   {
                                     "CompetitorId": competitor1GUID,
@@ -1243,8 +1257,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                             ),
                                           );
                                         });
-                                  }
-                                  else if (response.statusCode != 200) {
+                                  } else if (response.statusCode != 200) {
                                     String result = await response.stream.bytesToString();
                                     showDialog(
                                         context: context,
@@ -1353,7 +1366,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                               title: Text("Success", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
-                                              content: Text("You've saves '${point.shopName}' in offline mode. Please sync the activity once internet is available",
+                                              content: Text(
+                                                  "You've saves '${point.shopName}' in offline mode. Please sync the activity once internet is available",
                                                   style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   } else {
@@ -1361,7 +1375,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                               title: Text("Error", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
-                                              content: Text("Failed to save data while offline", style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                                              content: Text("Failed to save data while offline",
+                                                  style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   }
                                 }

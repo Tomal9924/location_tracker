@@ -18,7 +18,6 @@ class DropDownSelector extends StatefulWidget {
 }
 
 class _DropDownSelectorState extends State<DropDownSelector> {
-
   final TextEditingController searchController = TextEditingController();
 
   List<DropDownItem> list = [];
@@ -28,6 +27,7 @@ class _DropDownSelectorState extends State<DropDownSelector> {
     list = widget.items;
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -81,6 +81,7 @@ class _DropDownSelectorState extends State<DropDownSelector> {
                       widget.value = item.value;
                     });
                     widget.onSelect(item.value);
+                    Navigator.of(context).pop();
                   },
                   title: Text(item.text.trim() ?? "-", style: TextStyles.body(context: context, color: themeProvider.textColor)),
                   leading: Icon(
