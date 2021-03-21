@@ -29,6 +29,8 @@ const int tableDistrict = 2;
 const int tableThana = 3;
 const int tableCompetitor = 4;
 
+const String zeroGuid = "00000000-0000-0000-0000-000000000000";
+
 ///------------------------User Table------------------------
 final String userId = "id";
 final String userGUID = "guid";

@@ -18,6 +18,7 @@ import 'package:location_tracker/src/routes/route_auth.dart';
 import 'package:location_tracker/src/routes/route_history.dart';
 import 'package:location_tracker/src/utils/constants.dart';
 import 'package:location_tracker/src/utils/form_validator.dart';
+import 'package:location_tracker/src/utils/helper.dart';
 import 'package:location_tracker/src/utils/text_styles.dart';
 import 'package:location_tracker/src/widgets/home/widget_sync_now.dart';
 import 'package:location_tracker/src/widgets/widget_dropdown.dart';
@@ -45,23 +46,11 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
     DropDownItem(text: "Sub-Dealer", value: "Sub-Dealer"),
     DropDownItem(text: "Shop", value: "Shop"),
   ];
-  List<DropDownItem> dealerListNames = [
-    DropDownItem(text: "Jack", value: "jack"),
-    DropDownItem(text: "Smith", value: "smith"),
-    DropDownItem(text: "John", value: "john"),
-    DropDownItem(text: "Dummy", value: "Dummy"),
-  ];
   List<DropDownItem> shopType = [
     DropDownItem(text: "Registered", value: "Registered"),
     DropDownItem(text: "Cash Retailer", value: "Cash Retailer"),
     DropDownItem(text: "Adhoc", value: "Adhoc"),
     DropDownItem(text: "Not Application", value: "Not Application"),
-  ];
-  List<DropDownItem> subDealerItems = [
-    DropDownItem(text: "Harun", value: "Harun"),
-    DropDownItem(text: "Nikolas", value: "Nikolas"),
-    DropDownItem(text: "Raju", value: "Raju"),
-    DropDownItem(text: "Mina", value: "Mina"),
   ];
   List<DropDownItem> routeDays = [
     DropDownItem(text: "Saturday", value: "Saturday"),
@@ -75,23 +64,15 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   String competitor1GUID = "";
   String competitor2GUID = "";
   String competitor3GUID = "";
-  String _selectedisDealerTypes = "";
-  String _selectedShopTypes = "";
-  String _selectedSubShopTypes = "";
-  String distributorName = "Shop";
-  TextEditingController shopNameController = new TextEditingController();
+  String shopTypes = "";
+  String distributorName = "";
+
+  TextEditingController cityVillageController = new TextEditingController();
+  TextEditingController routeNameController = new TextEditingController();
+  TextEditingController distributorNameController = new TextEditingController();
+  TextEditingController registrationController = new TextEditingController();
   TextEditingController ownerNameController = new TextEditingController();
   TextEditingController ownerPhoneController = new TextEditingController();
-  TextEditingController thanaController = new TextEditingController();
-  TextEditingController cityController = new TextEditingController();
-  TextEditingController districtController = new TextEditingController();
-  TextEditingController routeNameController = new TextEditingController();
-  TextEditingController monthlySaleTVController = new TextEditingController();
-  TextEditingController monthlySaleRFController = new TextEditingController();
-  TextEditingController monthlySaleACController = new TextEditingController();
-  TextEditingController showRoomSizeController = new TextEditingController();
-  TextEditingController acController = new TextEditingController();
-  TextEditingController subShopController = new TextEditingController();
   TextEditingController competitor1TVController = new TextEditingController();
   TextEditingController competitor1RFController = new TextEditingController();
   TextEditingController competitor1ACController = new TextEditingController();
@@ -101,32 +82,29 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   TextEditingController competitor3TVController = new TextEditingController();
   TextEditingController competitor3RFController = new TextEditingController();
   TextEditingController competitor3ACController = new TextEditingController();
+  TextEditingController monthlySaleTVController = new TextEditingController();
+  TextEditingController monthlySaleRFController = new TextEditingController();
+  TextEditingController monthlySaleACController = new TextEditingController();
+  TextEditingController showRoomSizeController = new TextEditingController();
 
-  FormValidator shopValidator = FormValidator();
+  FormValidator cityValidator = FormValidator();
+  FormValidator registrationValidator = FormValidator();
+  FormValidator distributorValidator = FormValidator();
   FormValidator routeNameValidator = FormValidator();
   FormValidator ownerNameValidator = FormValidator();
   FormValidator ownerPhoneValidator = FormValidator();
-  FormValidator cityValidator = FormValidator();
-  FormValidator districtValidator = FormValidator();
-
-  FocusNode shopNameFocusNode = FocusNode();
-  FocusNode routeNameFocusNode = FocusNode();
-  FocusNode ownerNameFocusNode = FocusNode();
-  FocusNode ownerPhoneFocusNode = FocusNode();
-  FocusNode cityFocusNode = FocusNode();
-  FocusNode districtFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     Location().requestPermission();
     Location().requestService();
-    shopValidator.initialize(controller: shopNameController, type: FormType.name);
+    cityValidator.initialize(controller: cityVillageController, type: FormType.name);
+    registrationValidator.initialize(controller: registrationController, type: FormType.name);
+    distributorValidator.initialize(controller: distributorNameController, type: FormType.name);
     routeNameValidator.initialize(controller: routeNameController, type: FormType.name);
     ownerNameValidator.initialize(controller: ownerNameController, type: FormType.name);
     ownerPhoneValidator.initialize(controller: ownerPhoneController, type: FormType.name);
-    cityValidator.initialize(controller: ownerPhoneController, type: FormType.name);
-    districtValidator.initialize(controller: ownerPhoneController, type: FormType.name);
   }
 
   @override
@@ -162,15 +140,17 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
           Padding(
             padding: EdgeInsets.all(8),
             child: InkWell(
-                onTap: () {
-                  Navigator.of(context).pushNamed(HistoryRoute().route);
-                },
-                child: CircleAvatar(
-                    backgroundColor: themeProvider.accentColor.withOpacity(.08),
-                    child: Icon(
-                      Icons.history,
-                      color: themeProvider.accentColor,
-                    ))),
+              onTap: () {
+                Navigator.of(context).pushNamed(HistoryRoute().route);
+              },
+              child: CircleAvatar(
+                backgroundColor: themeProvider.accentColor.withOpacity(.08),
+                child: Icon(
+                  Icons.history,
+                  color: themeProvider.accentColor,
+                ),
+              ),
+            ),
           ),
           Padding(
             padding: EdgeInsets.all(8),
@@ -218,8 +198,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           child: ListTile(
                             tileColor: themeProvider.secondaryColor,
                             leading: Icon(Icons.location_on_outlined),
-                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}",
-                                style: TextStyles.body(context: context, color: themeProvider.hintColor)),
+                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}", style: TextStyles.body(context: context, color: themeProvider.hintColor)),
                             onTap: () {
                               MapsLauncher.launchCoordinates(snapshot.data.latitude, snapshot.data.longitude);
                             },
@@ -228,8 +207,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 8),
                         Divider(),
                         SizedBox(height: 8),
-                        Text("District *",
-                            style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("District *", style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(
                           height: 4,
                         ),
@@ -254,6 +232,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               )
                             : DropDownMenu(
                                 onSelect: (value) {
+                                  FocusScope.of(context).requestFocus(FocusNode());
                                   setState(() {
                                     district = value;
                                   });
@@ -266,8 +245,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 8),
                         Visibility(
                           visible: district.isNotEmpty,
-                          child: Text("Thana *",
-                              style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                          child: Text("Thana *", style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
                         Visibility(
                           visible: district.isNotEmpty,
@@ -279,6 +257,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           visible: district.isNotEmpty,
                           child: DropDownMenu(
                             onSelect: (value) {
+                              FocusScope.of(context).requestFocus(FocusNode());
                               setState(() {
                                 thana = value;
                               });
@@ -291,12 +270,10 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 8),
                         //city---------------------------
-                        Text("City/village *",
-                            style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("City/village *", style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
-                          controller: cityController,
-                          focusNode: cityFocusNode,
+                          controller: cityVillageController,
                           keyboardType: TextInputType.name,
                           style: TextStyles.body(context: context, color: cityValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                           cursorColor: cityValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
@@ -330,17 +307,14 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text("Route name *",
-                                      style: TextStyles.caption(
-                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                      style: TextStyles.caption(context: context, color: routeNameValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
                                     height: 4,
                                   ),
                                   TextField(
                                     controller: routeNameController,
-                                    focusNode: routeNameFocusNode,
                                     keyboardType: TextInputType.text,
-                                    style: TextStyles.body(
-                                        context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
+                                    style: TextStyles.body(context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                                     cursorColor: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
                                     textInputAction: TextInputAction.next,
                                     onChanged: (value) {
@@ -355,8 +329,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                       filled: true,
                                       border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
                                       contentPadding: EdgeInsets.all(16),
-                                      helperText: routeNameValidator.validationMessage,
-                                      helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
                                     ),
                                   ),
                                 ],
@@ -370,9 +342,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Day*",
-                                      style: TextStyles.caption(
-                                          context: context, color: districtValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  Text("Day*", style: TextStyles.caption(context: context, color: routeDay.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
                                     height: 4,
                                   ),
@@ -395,53 +365,57 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 16),
                         //Shop name-------------------
                         Text("Dealer/Sub-dealer/Shop",
-                            style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                            style: TextStyles.caption(context: context, color: distributorName.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
 
                         SizedBox(height: 4),
                         DropDownMenu(
                             items: dealerTypes,
-                            value: _selectedisDealerTypes,
+                            value: distributorName,
                             onSelect: (value) {
+                              FocusScope.of(context).requestFocus(FocusNode());
                               setState(() {
-                                _selectedisDealerTypes = value;
-                                distributorName = _selectedisDealerTypes;
+                                distributorName = value;
                               });
                             },
                             title: 'Choose brands',
-                            text: _selectedisDealerTypes.isEmpty
-                                ? "Select one"
-                                : dealerTypes.firstWhere((element) => element.value == _selectedisDealerTypes).text),
+                            text: distributorName.isEmpty ? "Select one" : dealerTypes.firstWhere((element) => element.value == distributorName).text),
                         Visibility(
-                          visible: _selectedisDealerTypes == "Shop",
+                          visible: distributorName == "Shop",
                           child: Container(
                             margin: EdgeInsets.only(top: 8),
                             child: DropDownMenu(
-                                items: shopType,
-                                value: _selectedShopTypes,
-                                onSelect: (value) {
-                                  setState(() {
-                                    _selectedShopTypes = value;
-                                  });
-                                },
-                                title: 'Choose brands',
-                                text: _selectedShopTypes.isEmpty ? "Select one" : shopType.firstWhere((element) => element.value == _selectedShopTypes).text),
+                              items: shopType,
+                              value: shopTypes,
+                              onSelect: (value) {
+                                FocusScope.of(context).requestFocus(FocusNode());
+                                setState(() {
+                                  shopTypes = value;
+                                });
+                              },
+                              title: 'Choose brands',
+                              text: shopTypes.isEmpty ? "Select one" : shopType.firstWhere((element) => element.value == shopTypes).text,
+                            ),
                           ),
                         ),
                         Visibility(
-                          visible: _selectedisDealerTypes == "Shop" && _selectedShopTypes == "Registered",
+                          visible: distributorName == "Shop" && shopTypes == "Registered",
                           child: Container(
                             margin: EdgeInsets.only(top: 8),
                             child: TextField(
-                              controller: subShopController,
+                              controller: registrationController,
                               keyboardType: TextInputType.text,
-                              style: TextStyles.body(context: context, color: themeProvider.textColor),
+                              style: TextStyles.body(context: context, color: registrationValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                               cursorColor: themeProvider.textColor,
                               textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
                                 hintText: "registered from...",
-                                hintStyle: TextStyles.caption(context: context, color: themeProvider.hintColor.withOpacity(.5)),
+                                hintStyle:
+                                    TextStyles.caption(context: context, color: registrationValidator.isValid ? themeProvider.hintColor.withOpacity(.5) : themeProvider.errorColor),
                                 fillColor: themeProvider.secondaryColor,
                                 filled: true,
+                                helperText: registrationValidator.validationMessage,
+                                helperStyle:
+                                    TextStyles.caption(context: context, color: registrationValidator.isValid ? themeProvider.hintColor.withOpacity(.5) : themeProvider.errorColor),
                                 border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
                                 prefixIconConstraints: BoxConstraints(maxWidth: 36, minWidth: 36),
                                 contentPadding: EdgeInsets.all(16),
@@ -450,43 +424,44 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           ),
                         ),
 
-                        SizedBox(
-                          height: 16,
+                        Visibility(visible: distributorName.isNotEmpty, child: SizedBox(height: 16)),
+                        Visibility(
+                          visible: distributorName.isNotEmpty,
+                          child: Text("$distributorName Name *",
+                              style: TextStyles.caption(context: context, color: distributorValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
-                        Text("$distributorName Name *",
-                            style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
-                        SizedBox(height: 4),
-                        TextField(
-                          controller: shopNameController,
-                          focusNode: shopNameFocusNode,
-                          keyboardType: TextInputType.text,
-                          style: TextStyles.body(context: context, color: shopValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
-                          cursorColor: shopValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (value) {
-                            if (!shopValidator.isValid) {
-                              setState(() {
-                                shopValidator.validate();
-                              });
-                            }
-                          },
-                          decoration: InputDecoration(
-                            fillColor: themeProvider.secondaryColor,
-                            filled: true,
-                            border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
-                            contentPadding: EdgeInsets.all(16),
-                            helperText: shopValidator.validationMessage,
-                            helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
+                        Visibility(visible: distributorName.isNotEmpty, child: SizedBox(height: 4)),
+                        Visibility(
+                          visible: distributorName.isNotEmpty,
+                          child: TextField(
+                            controller: distributorNameController,
+                            keyboardType: TextInputType.text,
+                            style: TextStyles.body(context: context, color: distributorValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
+                            cursorColor: distributorValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
+                            textInputAction: TextInputAction.next,
+                            onChanged: (value) {
+                              if (!distributorValidator.isValid) {
+                                setState(() {
+                                  distributorValidator.validate();
+                                });
+                              }
+                            },
+                            decoration: InputDecoration(
+                              fillColor: themeProvider.secondaryColor,
+                              filled: true,
+                              border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
+                              contentPadding: EdgeInsets.all(16),
+                              helperText: distributorValidator.validationMessage,
+                              helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
+                            ),
                           ),
                         ),
                         SizedBox(height: 16),
                         //owner name-------------------
-                        Text("Owner Name *",
-                            style: TextStyles.caption(context: context, color: shopValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("Owner Name *", style: TextStyles.caption(context: context, color: ownerNameValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: ownerNameController,
-                          focusNode: ownerNameFocusNode,
                           keyboardType: TextInputType.text,
                           style: TextStyles.body(context: context, color: ownerNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                           cursorColor: ownerNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
@@ -509,13 +484,10 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 16),
                         //owner name-------------------
-                        Text("Owner Phone *",
-                            style:
-                                TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("Owner Phone *", style: TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: ownerPhoneController,
-                          focusNode: ownerPhoneFocusNode,
                           keyboardType: TextInputType.phone,
                           style: TextStyles.body(context: context, color: ownerPhoneValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                           cursorColor: ownerPhoneValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
@@ -560,6 +532,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               items: userProvider.getAllCompetitors(competitor1GUID, competitor2GUID, competitor3GUID),
                               value: competitor1GUID,
                               onSelect: (value) {
+                                FocusScope.of(context).requestFocus(FocusNode());
                                 setState(() {
                                   competitor1GUID = value;
                                 });
@@ -697,6 +670,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               items: userProvider.getAllCompetitors(competitor1GUID, competitor2GUID, competitor3GUID),
                               value: competitor2GUID,
                               onSelect: (value) {
+                                FocusScope.of(context).requestFocus(FocusNode());
                                 setState(() {
                                   competitor2GUID = value;
                                 });
@@ -834,6 +808,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               items: userProvider.getAllCompetitors(competitor1GUID, competitor2GUID, competitor3GUID),
                               value: competitor3GUID,
                               onSelect: (value) {
+                                FocusScope.of(context).requestFocus(FocusNode());
                                 setState(() {
                                   competitor3GUID = value;
                                 });
@@ -1109,7 +1084,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Upload Image *", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
+                            Text("Upload Image *", style: TextStyles.caption(context: context, color: files.isEmpty ? themeProvider.errorColor : themeProvider.hintColor)),
                             SizedBox(height: 4),
                             InkWell(
                               onTap: () {
@@ -1170,35 +1145,43 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               FocusScope.of(context).requestFocus(FocusNode());
                               setState(() {
                                 routeNameValidator.validate();
-                                shopValidator.validate();
+                                distributorValidator.validate();
                                 ownerNameValidator.validate();
                                 ownerPhoneValidator.validate();
                                 cityValidator.validate();
-                                districtValidator.validate();
                               });
-
-                              if (routeNameValidator.isValid &&
-                                  shopValidator.isValid &&
-                                  ownerNameValidator.isValid &&
-                                  ownerPhoneValidator.isValid &&
+                              if (district.isNotEmpty &&
+                                  thana.isNotEmpty &&
                                   cityValidator.isValid &&
-                                  districtValidator.isValid &&
+                                  cityVillageController.text.isNotEmpty &&
+                                  routeNameValidator.isValid &&
+                                  routeNameController.text.isNotEmpty &&
+                                  distributorName.isNotEmpty &&
+                                  distributorValidator.isValid &&
+                                  distributorNameController.text.isNotEmpty &&
+                                  (distributorName == "Shop"
+                                      ? shopTypes.isNotEmpty && (shopTypes == "Registered" ? (registrationValidator.isValid && registrationController.text.isNotEmpty) : true)
+                                      : true) &&
+                                  ownerNameValidator.isValid &&
+                                  ownerNameController.text.isNotEmpty &&
+                                  ownerPhoneValidator.isValid &&
+                                  ownerPhoneController.text.isNotEmpty &&
                                   files.isNotEmpty) {
                                 List<Map<String, String>> items = [
                                   {
-                                    "CompetitorId": competitor1GUID,
+                                    "CompetitorId": competitor1GUID.isEmpty ? zeroGuid : competitor1GUID,
                                     "TV": competitor1TVController.text,
                                     "RF": competitor1RFController.text,
                                     "AC": competitor1ACController.text,
                                   },
                                   {
-                                    "CompetitorId": competitor2GUID,
+                                    "CompetitorId": competitor2GUID.isEmpty ? zeroGuid : competitor2GUID,
                                     "TV": competitor2TVController.text,
                                     "RF": competitor2RFController.text,
                                     "AC": competitor2ACController.text,
                                   },
                                   {
-                                    "CompetitorId": competitor3GUID,
+                                    "CompetitorId": competitor3GUID.isEmpty ? zeroGuid : competitor3GUID,
                                     "TV": competitor3TVController.text,
                                     "RF": competitor3RFController.text,
                                     "AC": competitor3ACController.text,
@@ -1211,11 +1194,11 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   id: DateTime.now().millisecondsSinceEpoch,
                                   pointName: routeNameController.text,
                                   routeDay: routeDay,
-                                  shopName: shopNameController.text,
+                                  shopName: distributorNameController.text,
                                   ownerName: ownerNameController.text,
                                   ownerPhone: ownerPhoneController.text,
-                                  isDealer: _selectedisDealerTypes,
-                                  city: cityController.text,
+                                  isDealer: (distributorName == "Dealer").toString(),
+                                  city: cityVillageController.text,
                                   district: district,
                                   monthlySaleTv: monthlySaleTVController.text.toString(),
                                   monthlySaleRf: monthlySaleRFController.text.toString(),
@@ -1224,8 +1207,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   lat: snapshot.data.latitude,
                                   lng: snapshot.data.longitude,
                                   files: "",
-                                  shopSubType: _selectedShopTypes,
-                                  registeredName: subShopController.text.toString(),
+                                  shopSubType: shopTypes,
+                                  registeredName: registrationController.text.toString(),
                                   competitorList: json.encode(competitorList),
                                   thana: thana,
                                 );
@@ -1278,18 +1261,15 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                     setState(() {
                                       district = "";
                                       thana = "";
-                                      _selectedisDealerTypes = "";
-                                      _selectedShopTypes = "";
-                                      _selectedSubShopTypes = "";
+                                      distributorName = "";
+                                      shopTypes = "";
                                       competitor1GUID = "";
                                       competitor2GUID = "";
                                       competitor3GUID = "";
-                                      shopNameController.text = "";
+                                      distributorNameController.text = "";
                                       ownerNameController.text = "";
                                       ownerPhoneController.text = "";
-                                      thanaController.text = "";
-                                      cityController.text = "";
-                                      districtController.text = "";
+                                      cityVillageController.text = "";
                                       routeNameController.text = "";
                                       routeDay = "";
                                       competitor1TVController.text = "";
@@ -1332,18 +1312,15 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                     setState(() {
                                       district = "";
                                       thana = "";
-                                      _selectedisDealerTypes = "";
-                                      _selectedShopTypes = "";
-                                      _selectedSubShopTypes = "";
+                                      distributorName = "";
+                                      shopTypes = "";
                                       competitor1GUID = "";
                                       competitor2GUID = "";
                                       competitor3GUID = "";
-                                      shopNameController.text = "";
+                                      distributorNameController.text = "";
                                       ownerNameController.text = "";
                                       ownerPhoneController.text = "";
-                                      thanaController.text = "";
-                                      cityController.text = "";
-                                      districtController.text = "";
+                                      cityVillageController.text = "";
                                       routeNameController.text = "";
                                       routeDay = "";
                                       competitor1TVController.text = "";
@@ -1366,8 +1343,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                               title: Text("Success", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
-                                              content: Text(
-                                                  "You've saved '${point.shopName}' in offline mode. Please sync the activity once internet is available",
+                                              content: Text("You've saved '${point.shopName}' in offline mode. Please sync the activity once internet is available",
                                                   style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   } else {
@@ -1375,24 +1351,36 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                               title: Text("Error", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
-                                              content: Text("Failed to save data while offline",
-                                                  style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                                              content: Text("Failed to save data while offline", style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   }
                                 }
                               } else {
-                                if (routeNameValidator.isValid) {
-                                  FocusScope.of(context).requestFocus(routeNameFocusNode);
-                                } else if (shopValidator.isValid) {
-                                  FocusScope.of(context).requestFocus(shopNameFocusNode);
-                                } else if (ownerNameValidator.isValid) {
-                                  FocusScope.of(context).requestFocus(ownerNameFocusNode);
-                                } else if (ownerPhoneValidator.isValid) {
-                                  FocusScope.of(context).requestFocus(ownerPhoneFocusNode);
-                                } else if (cityValidator.isValid) {
-                                  FocusScope.of(context).requestFocus(cityFocusNode);
-                                } else if (districtValidator.isValid) {
-                                  FocusScope.of(context).requestFocus(districtFocusNode);
+                                FocusScope.of(context).requestFocus(FocusNode());
+                                if (district.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* district is required");
+                                } else if (thana.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* thana is required");
+                                } else if (!cityValidator.isValid || cityVillageController.text.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* city/village is required");
+                                } else if (!routeNameValidator.isValid || routeNameController.text.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* route name is required");
+                                } else if (routeDay.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* day is required");
+                                } else if (distributorName.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* dealer/sub-dealer/shop is required");
+                                } else if (!distributorValidator.isValid || distributorNameController.text.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* ${distributorName.toLowerCase()} name is required");
+                                } else if (distributorName == "Shop" && shopTypes.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* shop type is required");
+                                } else if (distributorName == "Shop" && shopTypes == "Registered" && (!registrationValidator.isValid || registrationController.text.isEmpty)) {
+                                  Helper.alertValidationERROR(context: context, message: "* registration number is required");
+                                } else if (!ownerNameValidator.isValid || ownerNameController.text.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* owner's name is required");
+                                } else if (!ownerPhoneValidator.isValid || ownerPhoneController.text.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* owner's phone number is required");
+                                } else if (files.isEmpty) {
+                                  Helper.alertValidationERROR(context: context, message: "* at least one image is required");
                                 }
                               }
                             },

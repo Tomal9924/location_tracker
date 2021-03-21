@@ -27,6 +27,7 @@ dependencies:
   material_design_icons_flutter:
   intl:
   data_connection_checker:
+  flushbar: 1.10.0
 
 dev_dependencies:
   flutter_test:
@@ -34,11 +35,11 @@ dev_dependencies:
   hive_generator:
   build_runner:
 
-
 flutter:
-
   uses-material-design: true
   assets:
     - images/
 
+module:
+  androidX: true
 
