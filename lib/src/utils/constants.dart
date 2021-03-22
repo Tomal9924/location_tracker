@@ -28,6 +28,9 @@ const int tableFloatingPoint = 1;
 const int tableDistrict = 2;
 const int tableThana = 3;
 const int tableCompetitor = 4;
+const int tableZone = 5;
+const int tableArea = 6;
+const int tableDealer = 7;
 
 ///------------------------User Table------------------------
 final String userId = "id";

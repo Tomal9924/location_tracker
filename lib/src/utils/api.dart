@@ -11,6 +11,6 @@ class Api {
   static String get lookUpDistrict => "District";
   static String get lookUpThana => "Thana";
   static String get lookUp => "$_baseUrl/api/GetLookupByKey";
-  static String get lookUpKeys => "District,Thana";
+  static String get lookUpKeys => "District,Thana,Zone,Area,Dealer";
   static String get getCompetitors => "$_baseUrl/api/GetCompetitorList";
 }

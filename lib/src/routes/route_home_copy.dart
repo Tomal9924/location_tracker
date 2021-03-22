@@ -38,6 +38,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   String routeDay = "";
   String district = "";
   String thana = "";
+  String zone = "";
+  String area = "";
+  String dealer = "";
   List<File> files = [];
   String isDealer = "";
   List<DropDownItem> dealerTypes = [
@@ -144,7 +147,12 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
       if (!userProvider.isNetworkingCompetitors && userProvider.competitorBox.isEmpty) {
         userProvider.loadCompetitors();
       }
-      if (!lookUpProvider.isNetworking && lookUpProvider.districtBox.isEmpty && lookUpProvider.thanaBox.isEmpty) {
+      if (!lookUpProvider.isNetworking &&
+          lookUpProvider.districtBox.isEmpty &&
+          lookUpProvider.thanaBox.isEmpty &&
+          lookUpProvider.zoneBox.isEmpty &&
+          lookUpProvider.areaBox.isEmpty &&
+          lookUpProvider.dealerBox.isEmpty) {
         lookUpProvider.loadLookUp();
       }
     });
@@ -211,6 +219,94 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           visible: internetProvider.connected && userProvider.unSyncDataLength > 0,
                         ),
                         Visibility(child: SizedBox(height: 16), visible: internetProvider.connected && userProvider.unSyncDataLength > 0),
+                        Text("Zone *",
+                            style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        SizedBox(
+                          height: 4,
+                        ),
+                        lookUpProvider.isNetworking
+                            ? Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: 54,
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: themeProvider.secondaryColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: 256,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: themeProvider.backgroundColor,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              )
+                            : DropDownMenu(
+                                onSelect: (value) {
+                                  setState(() {
+                                    zone = value;
+                                  });
+                                },
+                                items: lookUpProvider.getAllZones,
+                                value: zone,
+                                text: lookUpProvider.zoneDisplayText(zone),
+                                title: "Choose a Zone",
+                              ),
+                        SizedBox(height: 8),
+                        Visibility(
+                          visible: district.isNotEmpty,
+                          child: Text("Area *",
+                              style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        ),
+                        Visibility(
+                          visible: district.isNotEmpty,
+                          child: SizedBox(
+                            height: 4,
+                          ),
+                        ),
+                        Visibility(
+                          visible: zone.isNotEmpty,
+                          child: DropDownMenu(
+                            onSelect: (value) {
+                              setState(() {
+                                area = value;
+                              });
+                            },
+                            value: area,
+                            items: lookUpProvider.getAllAreas(zone),
+                            text: lookUpProvider.areaDisplayText(area, zone),
+                            title: "Choose a Area",
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Visibility(
+                          visible: district.isNotEmpty,
+                          child: Text("Dealer *",
+                              style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        ),
+                        Visibility(
+                          visible: district.isNotEmpty,
+                          child: SizedBox(
+                            height: 4,
+                          ),
+                        ),
+                        Visibility(
+                          visible: area.isNotEmpty,
+                          child: DropDownMenu(
+                            onSelect: (value) {
+                              setState(() {
+                                dealer = value;
+                              });
+                            },
+                            value: dealer,
+                            items: lookUpProvider.getAllDealer(dealer),
+                            text: lookUpProvider.areaDisplayText(dealer, area),
+                            title: "Choose a Dealer",
+                          ),
+                        ),
+                        SizedBox(height: 8),
                         Text("Location", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
                         SizedBox(height: 4),
                         ClipRRect(

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:location_tracker/src/model/db/area.dart';
 import 'package:location_tracker/src/model/db/competitor.dart';
+import 'package:location_tracker/src/model/db/dealer.dart';
 import 'package:location_tracker/src/model/db/district.dart';
 import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/db/thana.dart';
 import 'package:location_tracker/src/model/db/user.dart';
+import 'package:location_tracker/src/model/db/zone.dart';
 import 'package:location_tracker/src/provider/provider_auth.dart';
 import 'package:location_tracker/src/provider/provider_internet.dart';
 import 'package:location_tracker/src/provider/provider_lookup.dart';
@@ -125,6 +128,9 @@ class _LauncherRouteState extends State<LauncherRoute> {
       Box<District> districtBox = await Hive.openBox("districts");
       Box<Thana> thanaBox = await Hive.openBox("thanas");
       Box<Competitor> competitorBox = await Hive.openBox("competitors");
+      Box<Zone> zoneBox = await Hive.openBox("zones");
+      Box<Area> areasBox = await Hive.openBox("areas");
+      Box<Dealer> dealersBox = await Hive.openBox("dealers");
       User user;
       if (userBox.length > 0) {
         user = userBox.getAt(0);
