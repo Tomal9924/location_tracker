@@ -69,6 +69,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   String competitor3GUID = "";
   String shopTypes = "";
   String distributorName = "";
+  String _selectedisDealerTypes = "";
+  String _selectedShopTypes = "";
+  String _selectedSubShopTypes = "";
 
   TextEditingController cityVillageController = new TextEditingController();
   TextEditingController routeNameController = new TextEditingController();
@@ -89,6 +92,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   TextEditingController monthlySaleRFController = new TextEditingController();
   TextEditingController monthlySaleACController = new TextEditingController();
   TextEditingController showRoomSizeController = new TextEditingController();
+  TextEditingController commentController = new TextEditingController();
 
   FormValidator cityValidator = FormValidator();
   FormValidator registrationValidator = FormValidator();
@@ -236,12 +240,12 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               ),
                         SizedBox(height: 8),
                         Visibility(
-                          visible: district.isNotEmpty,
+                          visible: zone.isNotEmpty,
                           child: Text("Area *",
-                              style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                              style: TextStyles.caption(context: context, color: area.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
                         Visibility(
-                          visible: district.isNotEmpty,
+                          visible: zone.isNotEmpty,
                           child: SizedBox(
                             height: 4,
                           ),
@@ -262,12 +266,12 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 8),
                         Visibility(
-                          visible: district.isNotEmpty,
+                          visible: area.isNotEmpty,
                           child: Text("Dealer *",
-                              style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                              style: TextStyles.caption(context: context, color: dealer.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
                         Visibility(
-                          visible: district.isNotEmpty,
+                          visible: area.isNotEmpty,
                           child: SizedBox(
                             height: 4,
                           ),
@@ -281,8 +285,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               });
                             },
                             value: dealer,
-                            items: lookUpProvider.getAllDealer(dealer),
-                            text: lookUpProvider.areaDisplayText(dealer, area),
+                            items: lookUpProvider.getAllDealer(area),
+                            text: lookUpProvider.dealerDisplayText(dealer, area),
                             title: "Choose a Dealer",
                           ),
                         ),
@@ -294,7 +298,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           child: ListTile(
                             tileColor: themeProvider.secondaryColor,
                             leading: Icon(Icons.location_on_outlined),
-                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}", style: TextStyles.body(context: context, color: themeProvider.hintColor)),
+                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}",
+                                style: TextStyles.body(context: context, color: themeProvider.hintColor)),
                             onTap: () {
                               MapsLauncher.launchCoordinates(snapshot.data.latitude, snapshot.data.longitude);
                             },
@@ -303,7 +308,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 8),
                         Divider(),
                         SizedBox(height: 8),
-                        Text("District *", style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("District *",
+                            style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(
                           height: 4,
                         ),
@@ -341,7 +347,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 8),
                         Visibility(
                           visible: district.isNotEmpty,
-                          child: Text("Thana *", style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                          child: Text("Thana *",
+                              style: TextStyles.caption(context: context, color: thana.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
                         Visibility(
                           visible: district.isNotEmpty,
@@ -366,7 +373,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 8),
                         //city---------------------------
-                        Text("City/village *", style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("City/village *",
+                            style: TextStyles.caption(context: context, color: cityValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: cityVillageController,
@@ -403,14 +411,16 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text("Route name *",
-                                      style: TextStyles.caption(context: context, color: routeNameValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                                      style: TextStyles.caption(
+                                          context: context, color: routeNameValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
                                     height: 4,
                                   ),
                                   TextField(
                                     controller: routeNameController,
                                     keyboardType: TextInputType.text,
-                                    style: TextStyles.body(context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
+                                    style: TextStyles.body(
+                                        context: context, color: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                                     cursorColor: routeNameValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
                                     textInputAction: TextInputAction.next,
                                     onChanged: (value) {
@@ -438,7 +448,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Day*", style: TextStyles.caption(context: context, color: routeDay.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                                  Text("Day*",
+                                      style: TextStyles.caption(
+                                          context: context, color: routeDay.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                                   SizedBox(
                                     height: 4,
                                   ),
@@ -461,57 +473,62 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 16),
                         //Shop name-------------------
                         Text("Dealer/Sub-dealer/Shop",
-                            style: TextStyles.caption(context: context, color: distributorName.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                            style:
+                                TextStyles.caption(context: context, color: distributorName.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
 
                         SizedBox(height: 4),
                         DropDownMenu(
                             items: dealerTypes,
-                            value: distributorName,
+                            value: _selectedisDealerTypes,
                             onSelect: (value) {
-                              FocusScope.of(context).requestFocus(FocusNode());
                               setState(() {
-                                distributorName = value;
+                                _selectedisDealerTypes = value;
+                                distributorName = _selectedisDealerTypes;
+                                _selectedisDealerTypes == "Dealer" ? distributorNameController.text = dealer : distributorNameController.text = "";
                               });
                             },
                             title: 'Choose brands',
-                            text: distributorName.isEmpty ? "Select one" : dealerTypes.firstWhere((element) => element.value == distributorName).text),
+                            text: _selectedisDealerTypes.isEmpty
+                                ? "Select one"
+                                : dealerTypes.firstWhere((element) => element.value == _selectedisDealerTypes).text),
                         Visibility(
-                          visible: distributorName == "Shop",
+                          visible: _selectedisDealerTypes == "Shop",
                           child: Container(
                             margin: EdgeInsets.only(top: 8),
                             child: DropDownMenu(
-                              items: shopType,
-                              value: shopTypes,
-                              onSelect: (value) {
-                                FocusScope.of(context).requestFocus(FocusNode());
-                                setState(() {
-                                  shopTypes = value;
-                                });
-                              },
-                              title: 'Choose brands',
-                              text: shopTypes.isEmpty ? "Select one" : shopType.firstWhere((element) => element.value == shopTypes).text,
-                            ),
+                                items: shopType,
+                                value: _selectedShopTypes,
+                                onSelect: (value) {
+                                  setState(() {
+                                    _selectedShopTypes = value;
+                                  });
+                                },
+                                title: 'Choose brands',
+                                text: _selectedShopTypes.isEmpty ? "Select one" : shopType.firstWhere((element) => element.value == _selectedShopTypes).text),
                           ),
                         ),
                         Visibility(
-                          visible: distributorName == "Shop" && shopTypes == "Registered",
+                          visible: _selectedisDealerTypes == "Shop" && _selectedShopTypes == "Registered",
                           child: Container(
                             margin: EdgeInsets.only(top: 8),
                             child: TextField(
                               controller: registrationController,
                               keyboardType: TextInputType.text,
-                              style: TextStyles.body(context: context, color: registrationValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
+                              style:
+                                  TextStyles.body(context: context, color: registrationValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
                               cursorColor: themeProvider.textColor,
                               textInputAction: TextInputAction.next,
                               decoration: InputDecoration(
                                 hintText: "registered from...",
-                                hintStyle:
-                                    TextStyles.caption(context: context, color: registrationValidator.isValid ? themeProvider.hintColor.withOpacity(.5) : themeProvider.errorColor),
+                                hintStyle: TextStyles.caption(
+                                    context: context,
+                                    color: registrationValidator.isValid ? themeProvider.hintColor.withOpacity(.5) : themeProvider.errorColor),
                                 fillColor: themeProvider.secondaryColor,
                                 filled: true,
                                 helperText: registrationValidator.validationMessage,
-                                helperStyle:
-                                    TextStyles.caption(context: context, color: registrationValidator.isValid ? themeProvider.hintColor.withOpacity(.5) : themeProvider.errorColor),
+                                helperStyle: TextStyles.caption(
+                                    context: context,
+                                    color: registrationValidator.isValid ? themeProvider.hintColor.withOpacity(.5) : themeProvider.errorColor),
                                 border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
                                 prefixIconConstraints: BoxConstraints(maxWidth: 36, minWidth: 36),
                                 contentPadding: EdgeInsets.all(16),
@@ -520,41 +537,38 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           ),
                         ),
 
-                        Visibility(visible: distributorName.isNotEmpty, child: SizedBox(height: 16)),
-                        Visibility(
-                          visible: distributorName.isNotEmpty,
-                          child: Text("$distributorName Name *",
-                              style: TextStyles.caption(context: context, color: distributorValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
-                        ),
-                        Visibility(visible: distributorName.isNotEmpty, child: SizedBox(height: 4)),
-                        Visibility(
-                          visible: distributorName.isNotEmpty,
-                          child: TextField(
-                            controller: distributorNameController,
-                            keyboardType: TextInputType.text,
-                            style: TextStyles.body(context: context, color: distributorValidator.isValid ? themeProvider.textColor : themeProvider.errorColor),
-                            cursorColor: distributorValidator.isValid ? themeProvider.textColor : themeProvider.errorColor,
-                            textInputAction: TextInputAction.next,
-                            onChanged: (value) {
-                              if (!distributorValidator.isValid) {
-                                setState(() {
-                                  distributorValidator.validate();
-                                });
-                              }
-                            },
-                            decoration: InputDecoration(
-                              fillColor: themeProvider.secondaryColor,
-                              filled: true,
-                              border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
-                              contentPadding: EdgeInsets.all(16),
-                              helperText: distributorValidator.validationMessage,
-                              helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
-                            ),
+                        SizedBox(height: 16),
+                        Text("$distributorName Name *",
+                            style:
+                                TextStyles.caption(context: context, color: distributorValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        SizedBox(height: 4),
+                        TextField(
+                          controller: distributorNameController,
+                          keyboardType: TextInputType.text,
+                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                          cursorColor: themeProvider.textColor,
+                          textInputAction: TextInputAction.next,
+                          onChanged: (value) {
+                            if (!distributorValidator.isValid) {
+                              setState(() {
+                                distributorValidator.validate();
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            fillColor: themeProvider.secondaryColor,
+                            filled: true,
+                            border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
+                            contentPadding: EdgeInsets.all(16),
+                            helperText: distributorValidator.validationMessage,
+                            helperStyle: TextStyles.caption(context: context, color: themeProvider.errorColor),
                           ),
                         ),
                         SizedBox(height: 16),
                         //owner name-------------------
-                        Text("Owner Name *", style: TextStyles.caption(context: context, color: ownerNameValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("Owner Name *",
+                            style:
+                                TextStyles.caption(context: context, color: ownerNameValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: ownerNameController,
@@ -580,7 +594,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         ),
                         SizedBox(height: 16),
                         //owner name-------------------
-                        Text("Owner Phone *", style: TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
+                        Text("Owner Phone *",
+                            style:
+                                TextStyles.caption(context: context, color: ownerPhoneValidator.isValid ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(height: 4),
                         TextField(
                           controller: ownerPhoneController,
@@ -1133,54 +1149,65 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           ],
                         ),
                         SizedBox(height: 16),
-                        Row(
+                        Column(
                           mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Showroom size",
-                                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                  ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
-                                  TextField(
-                                    controller: showRoomSizeController,
-                                    keyboardType: TextInputType.number,
-                                    style: TextStyles.body(context: context, color: themeProvider.textColor),
-                                    cursorColor: themeProvider.textColor,
-                                    textInputAction: TextInputAction.next,
-                                    decoration: InputDecoration(
-                                      fillColor: themeProvider.secondaryColor,
-                                      filled: true,
-                                      border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
-                                      prefixIcon: Text(
-                                        "SQ",
-                                        style: TextStyles.caption(context: context, color: themeProvider.hintColor),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      prefixIconConstraints: BoxConstraints(maxWidth: 36, minWidth: 36),
-                                      contentPadding: EdgeInsets.only(right: 12),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              flex: 4,
+                            Text(
+                              "Showroom size",
+                              style: TextStyles.caption(context: context, color: themeProvider.hintColor),
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(
+                              height: 4,
+                            ),
+                            TextField(
+                              controller: showRoomSizeController,
+                              keyboardType: TextInputType.number,
+                              style: TextStyles.body(context: context, color: themeProvider.textColor),
+                              cursorColor: themeProvider.textColor,
+                              textInputAction: TextInputAction.next,
+                              decoration: InputDecoration(
+                                fillColor: themeProvider.secondaryColor,
+                                filled: true,
+                                border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(4)),
+                                prefixIcon: Text(
+                                  "SQ",
+                                  style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                                  textAlign: TextAlign.center,
+                                ),
+                                prefixIconConstraints: BoxConstraints(maxWidth: 36, minWidth: 36),
+                                contentPadding: EdgeInsets.only(right: 12),
+                              ),
+                            ),
                           ],
+                        ),
+                        SizedBox(width: 8),
+                        Text("Comment", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
+                        SizedBox(height: 4),
+                        TextField(
+                          controller: commentController,
+                          textAlign: TextAlign.start,
+                          maxLines: 1,
+                          keyboardType: TextInputType.text,
+                          style: TextStyles.body(context: context, color: themeProvider.textColor),
+                          cursorColor: themeProvider.textColor,
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            fillColor: themeProvider.secondaryColor,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: EdgeInsets.all(16),
+                          ),
                         ),
                         SizedBox(height: 16),
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Upload Image *", style: TextStyles.caption(context: context, color: files.isEmpty ? themeProvider.errorColor : themeProvider.hintColor)),
+                            Text("Upload Image *",
+                                style: TextStyles.caption(context: context, color: files.isEmpty ? themeProvider.errorColor : themeProvider.hintColor)),
                             SizedBox(height: 4),
                             InkWell(
                               onTap: () {
@@ -1256,13 +1283,15 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   distributorValidator.isValid &&
                                   distributorNameController.text.isNotEmpty &&
                                   (distributorName == "Shop"
-                                      ? shopTypes.isNotEmpty && (shopTypes == "Registered" ? (registrationValidator.isValid && registrationController.text.isNotEmpty) : true)
+                                      ? shopTypes.isNotEmpty &&
+                                          (shopTypes == "Registered" ? (registrationValidator.isValid && registrationController.text.isNotEmpty) : true)
                                       : true) &&
                                   ownerNameValidator.isValid &&
                                   ownerNameController.text.isNotEmpty &&
                                   ownerPhoneValidator.isValid &&
                                   ownerPhoneController.text.isNotEmpty &&
-                                  files.isNotEmpty) {
+                                  files.isNotEmpty &&
+                                  routeDay.isNotEmpty) {
                                 List<Map<String, String>> items = [
                                   {
                                     "CompetitorId": competitor1GUID.isEmpty ? zeroGuid : competitor1GUID,
@@ -1293,7 +1322,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   shopName: distributorNameController.text,
                                   ownerName: ownerNameController.text,
                                   ownerPhone: ownerPhoneController.text,
-                                  isDealer: (distributorName == "Dealer").toString(),
+                                  isDealer: _selectedisDealerTypes,
                                   city: cityVillageController.text,
                                   district: district,
                                   monthlySaleTv: monthlySaleTVController.text.toString(),
@@ -1307,6 +1336,10 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   registeredName: registrationController.text.toString(),
                                   competitorList: json.encode(competitorList),
                                   thana: thana,
+                                  comment: commentController.text.toString(),
+                                  zone: zone,
+                                  area: area,
+                                  dealer: dealer,
                                 );
 
                                 if (internetProvider.connected) {
@@ -1439,7 +1472,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                               title: Text("Success", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
-                                              content: Text("You've saved '${point.shopName}' in offline mode. Please sync the activity once internet is available",
+                                              content: Text(
+                                                  "You've saved '${point.shopName}' in offline mode. Please sync the activity once internet is available",
                                                   style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   } else {
@@ -1447,7 +1481,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                               title: Text("Error", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor)),
-                                              content: Text("Failed to save data while offline", style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                                              content: Text("Failed to save data while offline",
+                                                  style: TextStyles.body(context: context, color: themeProvider.textColor)),
                                             ));
                                   }
                                 }
@@ -1469,7 +1504,9 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   Helper.alertValidationERROR(context: context, message: "* ${distributorName.toLowerCase()} name is required");
                                 } else if (distributorName == "Shop" && shopTypes.isEmpty) {
                                   Helper.alertValidationERROR(context: context, message: "* shop type is required");
-                                } else if (distributorName == "Shop" && shopTypes == "Registered" && (!registrationValidator.isValid || registrationController.text.isEmpty)) {
+                                } else if (distributorName == "Shop" &&
+                                    shopTypes == "Registered" &&
+                                    (!registrationValidator.isValid || registrationController.text.isEmpty)) {
                                   Helper.alertValidationERROR(context: context, message: "* registration number is required");
                                 } else if (!ownerNameValidator.isValid || ownerNameController.text.isEmpty) {
                                   Helper.alertValidationERROR(context: context, message: "* owner's name is required");

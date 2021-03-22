@@ -32,7 +32,7 @@ class UserProvider extends ChangeNotifier {
     pointBox = Hive.box("floating_points");
   }
 
-  List<DropDownItem> getAllCompetitors(String competitor1,String competitor2,String competitor3) {
+  List<DropDownItem> getAllCompetitors(String competitor1, String competitor2, String competitor3) {
     List<Competitor> list = competitorBox.values.toList();
     list.removeWhere((element) => element.competitorId == competitor1 || element.competitorId == competitor2 || element.competitorId == competitor3);
     return List.generate(list.length, (index) => list[index].toDropDownItem);
@@ -41,7 +41,7 @@ class UserProvider extends ChangeNotifier {
   Future<void> loadCompetitors() async {
     init();
     try {
-      if (isNetworkingCompetitors|| competitorBox.isNotEmpty)
+      if (isNetworkingCompetitors || competitorBox.isNotEmpty)
         return;
       else {
         isNetworkingCompetitors = true;
@@ -54,7 +54,7 @@ class UserProvider extends ChangeNotifier {
         List<Map<String, dynamic>> result = List<Map<String, dynamic>>.from(json.decode(response.body)["cmpList"]);
         result.forEach((element) {
           Competitor competitor = Competitor.fromJSON(element);
-          if(!isCompetitorExists(competitor.competitorId)) {
+          if (!isCompetitorExists(competitor.competitorId)) {
             competitorBox.add(competitor);
           }
         });
@@ -79,8 +79,8 @@ class UserProvider extends ChangeNotifier {
         "CityVillage": point.city.trim(),
         "Lat": point.lat.toString(),
         "Lng": point.lng.toString(),
-        "LocationType": point.isDealer.toString().trim(),
-        "ShopType": point.shopSubType.toString().trim(),
+        "LocationType": point.isDealer.trim(),
+        "ShopType": point.shopSubType.trim(),
         "RegisteredName": point.registeredName.toString().trim(),
         "ShopName": point.shopName.trim(),
         "OwnerName": point.ownerName.trim(),
@@ -90,6 +90,10 @@ class UserProvider extends ChangeNotifier {
         "MonthlySaleAc": point.monthlySaleAc.trim(),
         "ShowroomSize": point.showroomSize.trim(),
         "CompetitorList": point.competitorList.trim(),
+        "Comment": point.comment.toString().trim(),
+        "Zone": point.zone.trim(),
+        "Area": point.area.trim(),
+        "Dealer": point.dealer.trim(),
       };
 
       var request = MultipartRequest(
@@ -117,24 +121,28 @@ class UserProvider extends ChangeNotifier {
       var headers = {
         "Authorization": user.token,
         "UserId": user.guid,
-        "PointName": point.pointName.toString(),
-        "RouteDay": point.routeDay,
-        "District": point.district,
-        "Thana": point.thana,
-        "CityVillage": point.city,
+        "PointName": point.pointName.toString().trim(),
+        "RouteDay": point.routeDay.trim(),
+        "District": point.district.trim(),
+        "Thana": point.thana.trim(),
+        "CityVillage": point.city.trim(),
         "Lat": point.lat.toString(),
         "Lng": point.lng.toString(),
-        "LocationType": point.isDealer.toString(),
-        "ShopType": point.shopSubType.toString(),
-        "RegisteredName": point.registeredName.toString(),
-        "ShopName": point.shopName,
-        "OwnerName": point.ownerName,
-        "OwnerPhone": point.ownerPhone,
-        "MonthlySaleTv": point.monthlySaleTv,
-        "MonthlySaleRf": point.monthlySaleRf,
-        "MonthlySaleAc": point.monthlySaleAc,
-        "ShowroomSize": point.showroomSize,
-        "CompetitorList": point.competitorList,
+        "LocationType": point.isDealer.toString().trim(),
+        "ShopType": point.shopSubType.toString().trim(),
+        "RegisteredName": point.registeredName.toString().trim(),
+        "ShopName": point.shopName.trim(),
+        "OwnerName": point.ownerName.trim(),
+        "OwnerPhone": point.ownerPhone.trim(),
+        "MonthlySaleTv": point.monthlySaleTv.trim(),
+        "MonthlySaleRf": point.monthlySaleRf.trim(),
+        "MonthlySaleAc": point.monthlySaleAc.trim(),
+        "ShowroomSize": point.showroomSize.trim(),
+        "CompetitorList": point.competitorList.trim(),
+        "Comment": point.comment.toString().trim(),
+        "Zone": point.zone.trim(),
+        "Area": point.area.trim(),
+        "Dealer": point.dealer.trim(),
       };
 
       var request = MultipartRequest(
@@ -201,7 +209,7 @@ class UserProvider extends ChangeNotifier {
   }
 
   bool isCompetitorExists(String value) {
-    return competitorBox.values.toList().where((element) => element.competitorId==value).isNotEmpty;
+    return competitorBox.values.toList().where((element) => element.competitorId == value).isNotEmpty;
   }
 
   String displayText(String value) {

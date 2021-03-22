@@ -72,7 +72,7 @@ class LookUpProvider extends ChangeNotifier {
   Future<void> loadLookUp() async {
     init();
 
-    if (isNetworking || districtBox.isNotEmpty || thanaBox.isNotEmpty)
+    if (isNetworking || districtBox.isNotEmpty || thanaBox.isNotEmpty || zoneBox.isNotEmpty || dealerBox.isNotEmpty || areaBox.isNotEmpty)
       return;
     else {
       isNetworking = true;
@@ -198,11 +198,11 @@ class LookUpProvider extends ChangeNotifier {
   }
 
   bool isAreaExists(String value) {
-    return zoneBox.values.toList().where((element) => element.dataValue == value).isNotEmpty;
+    return areaBox.values.toList().where((element) => element.dataValue == value).isNotEmpty;
   }
 
   bool isDealerExists(String value) {
-    return zoneBox.values.toList().where((element) => element.dataValue == value).isNotEmpty;
+    return dealerBox.values.toList().where((element) => element.dataValue == value).isNotEmpty;
   }
 
   bool isDistrictExists(String value) {

@@ -46,26 +46,39 @@ class FloatingPoint {
   String competitorList;
   @HiveField(19)
   String thana;
+  @HiveField(20)
+  String comment;
+  @HiveField(21)
+  String zone;
+  @HiveField(22)
+  String area;
+  @HiveField(23)
+  String dealer;
 
-  FloatingPoint(
-      {@required this.id,
-      @required this.district,
-      @required this.city,
-      @required this.pointName,
-      @required this.lat,
-      @required this.lng,
-      @required this.isDealer,
-      @required this.routeDay,
-      @required this.shopName,
-      @required this.ownerName,
-      @required this.ownerPhone,
-      @required this.monthlySaleTv,
-      @required this.monthlySaleRf,
-      @required this.monthlySaleAc,
-      @required this.showroomSize,
-      @required this.files,
-      @required this.shopSubType,
-      this.registeredName,
-      @required this.competitorList,
-      @required this.thana});
+  FloatingPoint({
+    @required this.id,
+    @required this.district,
+    @required this.city,
+    @required this.pointName,
+    @required this.lat,
+    @required this.lng,
+    @required this.isDealer,
+    @required this.routeDay,
+    @required this.shopName,
+    @required this.ownerName,
+    @required this.ownerPhone,
+    @required this.monthlySaleTv,
+    @required this.monthlySaleRf,
+    @required this.monthlySaleAc,
+    @required this.showroomSize,
+    @required this.files,
+    @required this.shopSubType,
+    this.registeredName,
+    @required this.competitorList,
+    @required this.thana,
+    @required this.comment,
+    @required this.zone,
+    @required this.area,
+    @required this.dealer,
+  });
 }
