@@ -33,22 +33,13 @@ class AuthRoute extends StatelessWidget {
               physics: ScrollPhysics(),
               scrollDirection: Axis.vertical,
               children: [
-                Image.asset(
-                  "images/logo.png",
-                  fit: BoxFit.contain,
-                  width: 72,
-                  height: 72,
-                ),
-                SizedBox(
-                  height: 12,
-                ),
+                Image.asset("images/logo.png", fit: BoxFit.contain, width: 72, height: 72),
+                SizedBox(height: 12),
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 16),
                   child: Text("JEAL Plotting", style: TextStyles.subTitle(context: context, color: themeProvider.accentColor), textAlign: TextAlign.center),
                 ),
-                SizedBox(
-                  height: 12,
-                ),
+                SizedBox(height: 12),
                 AuthForm(),
               ],
             ),
