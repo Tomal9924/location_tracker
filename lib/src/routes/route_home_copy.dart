@@ -1282,10 +1282,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   distributorName.isNotEmpty &&
                                   distributorValidator.isValid &&
                                   distributorNameController.text.isNotEmpty &&
-                                  (distributorName == "Shop"
-                                      ? shopTypes.isNotEmpty &&
-                                          (shopTypes == "Registered" ? (registrationValidator.isValid && registrationController.text.isNotEmpty) : true)
-                                      : true) &&
                                   ownerNameValidator.isValid &&
                                   ownerNameController.text.isNotEmpty &&
                                   ownerPhoneValidator.isValid &&
@@ -1502,13 +1498,14 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   Helper.alertValidationERROR(context: context, message: "* dealer/sub-dealer/shop is required");
                                 } else if (!distributorValidator.isValid || distributorNameController.text.isEmpty) {
                                   Helper.alertValidationERROR(context: context, message: "* ${distributorName.toLowerCase()} name is required");
-                                } else if (distributorName == "Shop" && shopTypes.isEmpty) {
+                                } /*else if (dealerTypes == "Shop" && shopTypes.isEmpty) {
                                   Helper.alertValidationERROR(context: context, message: "* shop type is required");
-                                } else if (distributorName == "Shop" &&
+                                }*/ /*else if (distributorName == "Shop" &&
                                     shopTypes == "Registered" &&
                                     (!registrationValidator.isValid || registrationController.text.isEmpty)) {
                                   Helper.alertValidationERROR(context: context, message: "* registration number is required");
-                                } else if (!ownerNameValidator.isValid || ownerNameController.text.isEmpty) {
+                                }*/
+                                else if (!ownerNameValidator.isValid || ownerNameController.text.isEmpty) {
                                   Helper.alertValidationERROR(context: context, message: "* owner's name is required");
                                 } else if (!ownerPhoneValidator.isValid || ownerPhoneController.text.isEmpty) {
                                   Helper.alertValidationERROR(context: context, message: "* owner's phone number is required");
