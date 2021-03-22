@@ -2,6 +2,8 @@ import 'package:hive/hive.dart';
 import 'package:location_tracker/src/model/drop_down_item.dart';
 import 'package:location_tracker/src/utils/constants.dart';
 
+part 'zone.g.dart';
+
 @HiveType(adapterName: "ZoneAdapter", typeId: tableZone)
 class Zone {
   @HiveField(0)

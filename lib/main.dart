@@ -33,6 +33,9 @@ Future<void> main() async {
   Hive.registerAdapter(DistrictAdapter());
   Hive.registerAdapter(ThanaAdapter());
   Hive.registerAdapter(CompetitorAdapter());
+  Hive.registerAdapter(ZoneAdapter());
+  Hive.registerAdapter(AreaAdapter());
+  Hive.registerAdapter(DealerAdapter());
   runApp(
     MultiProvider(child: MyApp(), providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
