@@ -32,6 +32,8 @@ const int tableZone = 5;
 const int tableArea = 6;
 const int tableDealer = 7;
 
+const String zeroGuid = "00000000-0000-0000-0000-000000000000";
+
 ///------------------------User Table------------------------
 final String userId = "id";
 final String userGUID = "guid";

@@ -32,6 +32,7 @@ class FloatingPointProvider extends ChangeNotifier {
 
   List<FloatingPoint> getAll() {
     List<FloatingPoint> list = items.values.toList();
+    list.sort((a,b)=>b.id.compareTo(a.id));
     return list;
   }
 
