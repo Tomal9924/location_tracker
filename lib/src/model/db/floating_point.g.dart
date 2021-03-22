@@ -37,13 +37,17 @@ class FloatingPointAdapter extends TypeAdapter<FloatingPoint> {
       registeredName: fields[17] as String,
       competitorList: fields[18] as String,
       thana: fields[19] as String,
+      comment: fields[20] as String,
+      zone: fields[21] as String,
+      area: fields[22] as String,
+      dealer: fields[23] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, FloatingPoint obj) {
     writer
-      ..writeByte(20)
+      ..writeByte(24)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -83,7 +87,15 @@ class FloatingPointAdapter extends TypeAdapter<FloatingPoint> {
       ..writeByte(18)
       ..write(obj.competitorList)
       ..writeByte(19)
-      ..write(obj.thana);
+      ..write(obj.thana)
+      ..writeByte(20)
+      ..write(obj.comment)
+      ..writeByte(21)
+      ..write(obj.zone)
+      ..writeByte(22)
+      ..write(obj.area)
+      ..writeByte(23)
+      ..write(obj.dealer);
   }
 
   @override
