@@ -25,25 +25,24 @@ class AuthProvider extends ChangeNotifier {
     init();
 
     Map<String, String> bodyParams = {
-      "username": username,
-      "password": password,
-      "grant_type": "password",
+      "UserName": username,
+      "Password": password,
     };
-
-    Response response = await post(Api.token, body: bodyParams);
+    Map<String, String> headerParams = {
+      "Content-Type": "application/json",
+    };
+    Response response = await post(Api.token, body: json.encode(bodyParams), headers: headerParams);
     switch (response.statusCode) {
       case 200:
-        Map<String, dynamic> result =
-            Map<String, dynamic>.from(json.decode(response.body));
+        Map<String, dynamic> result = Map<String, dynamic>.from(json.decode(response.body));
         if (username.contains("@")) {
           user.email = username;
         } else {
           user.username = username;
         }
         user.password = password;
-        user.token = "${result['token_type']} ${result['access_token']}";
-        user.expiresOn =
-            DateTime.now().millisecondsSinceEpoch + result['expires_in'];
+        user.token = "${result['token']}";
+        //user.expiresOn = DateTime.now().millisecondsSinceEpoch + result['expires_in'];
         updateUser();
         notifyListeners();
         break;
@@ -57,17 +56,13 @@ class AuthProvider extends ChangeNotifier {
 
   Future<Response> userInfo() async {
     Map<String, String> headerParams = {
-      "authorization": user.token,
-      "username": user.username != null && user.username.isNotEmpty
-          ? user.username
-          : user.email,
+      "Authorization": user.token,
     };
 
-    Response response = await get(Api.userInfo, headers: headerParams);
+    Response response = await get(Api.userInfo(user.username != null && user.username.isNotEmpty ? user.username : user.email), headers: headerParams);
     switch (response.statusCode) {
       case 200:
-        Map<String, dynamic> result =
-            Map<String, dynamic>.from(json.decode(response.body));
+        Map<String, dynamic> result = Map<String, dynamic>.from(json.decode(response.body));
         user = User.fromAuth(result, user);
         updateUser();
         notifyListeners();
