@@ -31,6 +31,7 @@ const int tableCompetitor = 4;
 const int tableZone = 5;
 const int tableArea = 6;
 const int tableDealer = 7;
+const int tableDivision = 8;
 
 const String zeroGuid = "00000000-0000-0000-0000-000000000000";
 
