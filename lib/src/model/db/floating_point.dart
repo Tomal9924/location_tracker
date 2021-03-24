@@ -54,6 +54,8 @@ class FloatingPoint {
   String area;
   @HiveField(23)
   String point;
+  @HiveField(24)
+  String division;
 
   FloatingPoint({
     @required this.id,
@@ -80,5 +82,6 @@ class FloatingPoint {
     @required this.zone,
     @required this.area,
     @required this.point,
+    @required this.division,
   });
 }

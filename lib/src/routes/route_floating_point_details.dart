@@ -93,6 +93,12 @@ class FloatingPointDetailsRoute extends StatelessWidget {
                     MapsLauncher.launchCoordinates(details.lat, details.lng);
                   },
                 ),
+                ListTile(
+                  leading: Icon(Icons.calendar_today_outlined, color: themeProvider.hintColor),
+                  title: Text("${details.createdDate}", style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                ),
                 Visibility(visible: details.files.isNotEmpty, child: Divider()),
                 Visibility(
                   visible: details.files.isNotEmpty,
@@ -126,7 +132,7 @@ class FloatingPointDetailsRoute extends StatelessWidget {
                             height: 256,
                             decoration: BoxDecoration(color: themeProvider.secondaryColor),
                             child: Image.network(
-                              Api.fileUrl(details.files[index]).replaceAll("v1/wwwroot/", ""),
+                              Api.fileUrl(details.files[index]).replaceAll("wwwroot/", ""),
                               width: 256,
                               height: 256,
                               fit: BoxFit.cover,

@@ -126,34 +126,55 @@ class _AuthFormState extends State<AuthForm> {
                     showDialog(context: context, builder: (context) => LoadingAlert(), barrierDismissible: false);
 
                     Response authResponse = await authProvider.authenticate(usernameController.text, passwordController.text);
-                    switch (authResponse.statusCode) {
-                      case 200:
-                        Response userResponse = await authProvider.userInfo();
-                        Navigator.of(context).pop();
-                        switch (userResponse.statusCode) {
-                          case 200:
-                            floatingPointProvider.destroy();
-                            Navigator.of(context).pushReplacementNamed(HomeRouteCopy().route, arguments: authProvider.user.guid);
-                            break;
-                          default:
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      title: Text("Profile fetching Error"),
-                                      content: Text(userResponse.body),
-                                    ));
-                            break;
-                        }
-                        break;
-                      default:
-                        Navigator.of(context).pop();
-                        showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                                  title: Text("Auth Error"),
-                                  content: Text(jsonDecode(authResponse.body)["error_description"]),
-                                ));
-                        break;
+                    Map<String, dynamic> authResult = Map<String, dynamic>.from(json.decode(authResponse.body));
+                    if (authResult.containsKey("StatusCode")) {
+                      Navigator.of(context).pop();
+                      switch (authResult["StatusCode"] as int) {
+                        case 400:
+                        case 401:
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("Auth Error", style: TextStyles.subTitle(context: context, color: themeProvider.errorColor)),
+                                    content: Text("Username or password or both are incorrect",
+                                        style: TextStyles.body(context: context, color: themeProvider.errorColor)),
+                                  ));
+                          break;
+                        case 500:
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("Auth Error", style: TextStyles.subTitle(context: context, color: themeProvider.errorColor)),
+                                    content: Text("Internal server error or username is wrong.",
+                                        style: TextStyles.body(context: context, color: themeProvider.errorColor)),
+                                  ));
+                          break;
+                        default:
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("Error", style: TextStyles.subTitle(context: context, color: themeProvider.errorColor)),
+                                    content: Text("Something went wrong", style: TextStyles.body(context: context, color: themeProvider.errorColor)),
+                                  ));
+                          break;
+                      }
+                    } else {
+                      Response userResponse = await authProvider.userInfo();
+                      Navigator.of(context).pop();
+                      switch (userResponse.statusCode) {
+                        case 200:
+                          floatingPointProvider.destroy();
+                          Navigator.of(context).pushReplacementNamed(HomeRouteCopy().route, arguments: authProvider.user.guid);
+                          break;
+                        default:
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text("Profile fetching Error"),
+                                    content: Text(userResponse.body),
+                                  ));
+                          break;
+                      }
                     }
                   } catch (error) {
                     Navigator.of(context).pop();
@@ -161,7 +182,7 @@ class _AuthFormState extends State<AuthForm> {
                         context: context,
                         builder: (context) => AlertDialog(
                               title: Text("Error"),
-                              content: Text(error),
+                              content: Text(error.toString()),
                             ));
                   }
                 }

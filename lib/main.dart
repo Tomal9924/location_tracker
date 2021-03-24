@@ -5,6 +5,7 @@ import 'package:location_tracker/src/model/db/area.dart';
 import 'package:location_tracker/src/model/db/competitor.dart';
 import 'package:location_tracker/src/model/db/dealer.dart';
 import 'package:location_tracker/src/model/db/district.dart';
+import 'package:location_tracker/src/model/db/division.dart';
 import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/db/thana.dart';
 import 'package:location_tracker/src/model/db/user.dart';
@@ -36,6 +37,7 @@ Future<void> main() async {
   Hive.registerAdapter(ZoneAdapter());
   Hive.registerAdapter(AreaAdapter());
   Hive.registerAdapter(DealerAdapter());
+  Hive.registerAdapter(DivisionAdapter());
   runApp(
     MultiProvider(child: MyApp(), providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
@@ -134,6 +136,7 @@ class _LauncherRouteState extends State<LauncherRoute> {
       Box<Zone> zoneBox = await Hive.openBox("zones");
       Box<Area> areasBox = await Hive.openBox("areas");
       Box<Dealer> dealersBox = await Hive.openBox("dealers");
+      Box<Division> divisonBox = await Hive.openBox("divisions");
       User user;
       if (userBox.length > 0) {
         user = userBox.getAt(0);

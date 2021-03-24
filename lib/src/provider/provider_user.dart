@@ -99,8 +99,9 @@ class UserProvider extends ChangeNotifier {
         "MonthlySaleRf": point.monthlySaleRf.trim(),
         "MonthlySaleAc": point.monthlySaleAc.trim(),
         "ShowroomSize": point.showroomSize.trim(),
-        "CompetitorList": json.encode(json.decode(point.competitorList)),
+        "ListLocationPointCompetitor": json.encode(json.decode(point.competitorList)),
         "Comment": point.comment.toString().trim(),
+        "Division": point.division.trim(),
       });
       for (var file in files) {
         request.files.add(
@@ -146,6 +147,7 @@ class UserProvider extends ChangeNotifier {
         "ShowroomSize": point.showroomSize.trim(),
         "CompetitorList": json.encode(json.decode(point.competitorList.trim())),
         "Comment": point.comment.toString().trim(),
+        "Division": point.division.trim(),
       };
 
       var request = MultipartRequest(

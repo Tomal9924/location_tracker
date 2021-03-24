@@ -48,32 +48,32 @@ class LookUpProvider extends ChangeNotifier {
     return List.generate(zones.length, (index) => zones[index].toDropDownItem);
   }
 
-  List<DropDownItem> get getAllDivision {
-    List<Division> divisions = divisionBox.values.toList();
+  List<DropDownItem> getAllDivision(String zone) {
+    List<Division> divisions = divisionBox.values.where((element) => element.parentDataKey == zone.trim()).toList();
     divisions.sort((a, b) => a.displayText.compareTo(b.displayText));
     return List.generate(divisions.length, (index) => divisions[index].toDropDownItem);
   }
 
-  List<DropDownItem> getAllDistricts(String divisions) {
-    List<District> districts = districtBox.values.where((element) => element.parentDataKey == divisions).toList();
+  List<DropDownItem> get getAllDistricts {
+    List<District> districts = districtBox.values.toList();
     districts.sort((a, b) => a.displayText.compareTo(b.displayText));
     return List.generate(districts.length, (index) => districts[index].toDropDownItem);
   }
 
   List<DropDownItem> getAllThana(String district) {
-    List<Thana> thanas = thanaBox.values.where((element) => element.parentDataKey == district).toList();
+    List<Thana> thanas = thanaBox.values.where((element) => element.parentDataKey == district.trim()).toList();
     thanas.sort((a, b) => a.displayText.compareTo(b.displayText));
     return List.generate(thanas.length, (index) => thanas[index].toDropDownItem);
   }
 
-  List<DropDownItem> getAllAreas(String areas) {
-    List<Area> area = areaBox.values.where((element) => element.parentDataKey == areas).toList();
+  List<DropDownItem> getAllAreas(String divisions) {
+    List<Area> area = areaBox.values.where((element) => element.parentDataKey == divisions.trim()).toList();
     area.sort((a, b) => a.displayText.compareTo(b.displayText));
     return List.generate(area.length, (index) => area[index].toDropDownItem);
   }
 
   List<DropDownItem> getAllDealer(String dealers) {
-    List<Dealer> dealer = dealerBox.values.where((element) => element.parentDataKey == dealers).toList();
+    List<Dealer> dealer = dealerBox.values.where((element) => element.parentDataKey == dealers.trim()).toList();
     dealer.sort((a, b) => a.displayText.compareTo(b.displayText));
     return List.generate(dealer.length, (index) => dealer[index].toDropDownItem);
   }
@@ -81,7 +81,13 @@ class LookUpProvider extends ChangeNotifier {
   Future<void> loadLookUp() async {
     init();
 
-    if (isNetworking || districtBox.isNotEmpty || thanaBox.isNotEmpty || zoneBox.isNotEmpty || dealerBox.isNotEmpty || areaBox.isNotEmpty)
+    if (isNetworking ||
+        districtBox.isNotEmpty ||
+        thanaBox.isNotEmpty ||
+        zoneBox.isNotEmpty ||
+        dealerBox.isNotEmpty ||
+        areaBox.isNotEmpty ||
+        divisionBox.isNotEmpty)
       return;
     else {
       isNetworking = true;
@@ -121,8 +127,9 @@ class LookUpProvider extends ChangeNotifier {
               if (!isAreaExists(area.dataValue)) {
                 areaBox.add(area);
               }
+
               break;
-            case "Dealer":
+            case "Point":
               Dealer dealer = Dealer.fromJSON(item);
               if (!isDealerExists(dealer.dataValue)) {
                 dealerBox.add(dealer);
@@ -155,10 +162,10 @@ class LookUpProvider extends ChangeNotifier {
     }
   }
 
-  String districtDisplayText(String value, String districts) {
+  String districtDisplayText(String value) {
     if (isDistrictExists(value)) {
       try {
-        return getAllDistricts(districts).firstWhere((element) => element.value == value).text;
+        return getAllDistricts.firstWhere((element) => element.value == value).text;
       } catch (error) {
         return "Select one";
       }
@@ -167,10 +174,10 @@ class LookUpProvider extends ChangeNotifier {
     }
   }
 
-  String divisionDisplayText(String value) {
-    if (isDistrictExists(value)) {
+  String divisionDisplayText(String value, String zone) {
+    if (isDivisionExists(value)) {
       try {
-        return getAllDivision.firstWhere((element) => element.value == value).text;
+        return getAllDivision(zone).firstWhere((element) => element.value == value).text;
       } catch (error) {
         return "Select one";
       }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:location_tracker/src/provider/provider_internet.dart';
 import 'package:location_tracker/src/provider/provider_theme.dart';
 import 'package:location_tracker/src/provider/provider_user.dart';
 import 'package:location_tracker/src/utils/text_styles.dart';

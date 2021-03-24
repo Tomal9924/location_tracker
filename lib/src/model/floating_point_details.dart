@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class FloatingPointDetails {
   int id;
   String locationPointGuid;
@@ -24,6 +26,7 @@ class FloatingPointDetails {
   String saleAC;
   String showroomSize;
   String comments;
+  String createdDate;
 
   FloatingPointDetails(
       {this.id,
@@ -53,6 +56,9 @@ class FloatingPointDetails {
       this.comments});
 
   FloatingPointDetails.fromJSON(Map<String, dynamic> map) {
+    DateTime dateTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+        .parse(map["LocationInfo"][0]["CreatedDate"].contains(".") ? map["LocationInfo"][0]["CreatedDate"] : "${map["LocationInfo"][0]["CreatedDate"]}.000")
+        .add(DateTime.now().timeZoneOffset);
     id = map["LocationInfo"][0]["Id"];
     locationPointGuid = map["LocationInfo"][0]["LocationPointId"];
     zone = map["LocationInfo"][0]["Zone"];
@@ -75,6 +81,7 @@ class FloatingPointDetails {
     try {
       lat = double.parse(map["LocationInfo"][0]["Lat"]) ?? 0;
       lng = double.parse(map["LocationInfo"][0]["Lng"]) ?? 0;
+      createdDate = DateFormat("hh:mma MM/dd/yyyy").format(dateTime);
     } catch (error) {
       lat = 0;
       lng = 0;

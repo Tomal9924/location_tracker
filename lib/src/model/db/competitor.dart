@@ -16,7 +16,7 @@ class Competitor {
   Competitor();
 
   Competitor.fromJSON(Map<String, dynamic> map) {
-    id = map["Id"] == "" ? 0 : map["Id"];
+    id = map["Id"];
     competitorId = map["CompetitorId"];
     name = map["Name"];
   }

@@ -60,7 +60,7 @@ class FloatingPointProvider extends ChangeNotifier {
     items = {};
     if (response.statusCode == 200) {
       items = {};
-      totalSize = json.decode(response.body)["Default"][0]["TotalCount"] as int;
+      totalSize = json.decode(response.body)["Default"][0]["Column1"] as int;
       List<Map<String, dynamic>> list = List<Map<String, dynamic>>.from(json.decode(response.body)["Default1"]);
       list.forEach((element) {
         FloatingPoint point = FloatingPoint.fromJSON(element);

@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:location_tracker/src/model/db/floating_point.dart';
@@ -135,7 +134,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
           lookUpProvider.thanaBox.isEmpty &&
           lookUpProvider.zoneBox.isEmpty &&
           lookUpProvider.areaBox.isEmpty &&
-          lookUpProvider.dealerBox.isEmpty) {
+          lookUpProvider.dealerBox.isEmpty &&
+          lookUpProvider.divisionBox.isEmpty) {
         lookUpProvider.loadLookUp();
       }
     });
@@ -146,7 +146,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
         backgroundColor: themeProvider.backgroundColor,
         elevation: 0,
         title: Text(
-          "JEAL Plotting 2.0",
+          "JEAL Plotting (v2.0)",
           style: TextStyles.title(context: context, color: themeProvider.accentColor),
         ),
         actions: [
@@ -256,27 +256,11 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 title: "Choose a Zone",
                               ),
                         SizedBox(height: 8),
-                        Text("Division *",
-                            style: TextStyles.caption(context: context, color: division.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
-                        DropDownMenu(
-                          onSelect: (value) {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            setState(() {
-                              division = value;
-                            });
-                          },
-                          value: division,
-                          items: lookUpProvider.getAllDivision(nsm),
-                          text: lookUpProvider.divisionDisplayText(division, nsm),
-                          title: "Choose a Division",
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
+
                         Visibility(
                           visible: zone.isNotEmpty,
-                          child: Text("Area *",
-                              style: TextStyles.caption(context: context, color: area.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                          child: Text("Division *",
+                              style: TextStyles.caption(context: context, color: division.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
                         Visibility(
                           visible: zone.isNotEmpty,
@@ -288,13 +272,42 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           visible: zone.isNotEmpty,
                           child: DropDownMenu(
                             onSelect: (value) {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              setState(() {
+                                division = value;
+                              });
+                            },
+                            value: division,
+                            items: lookUpProvider.getAllDivision(zone),
+                            text: lookUpProvider.divisionDisplayText(division, zone),
+                            title: "Choose a Division",
+                          ),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Visibility(
+                          visible: division.isNotEmpty,
+                          child: Text("Area *",
+                              style: TextStyles.caption(context: context, color: area.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        ),
+                        Visibility(
+                          visible: division.isNotEmpty,
+                          child: SizedBox(
+                            height: 4,
+                          ),
+                        ),
+                        Visibility(
+                          visible: division.isNotEmpty,
+                          child: DropDownMenu(
+                            onSelect: (value) {
                               setState(() {
                                 area = value;
                               });
                             },
                             value: area,
-                            items: lookUpProvider.getAllAreas(zone),
-                            text: lookUpProvider.areaDisplayText(area, zone),
+                            items: lookUpProvider.getAllAreas(division),
+                            text: lookUpProvider.areaDisplayText(area, division),
                             title: "Choose a Area",
                           ),
                         ),
@@ -324,7 +337,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                             title: "Choose a Dealer",
                           ),
                         ),
-                        Divider(),
                         SizedBox(height: 8),
                         Text("District *",
                             style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
@@ -502,7 +514,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                               setState(() {
                                 _selectedisDealerTypes = value;
                                 distributorName = _selectedisDealerTypes;
-                                _selectedisDealerTypes == "Dealer" ? distributorNameController.text = dealer : distributorNameController.text = "";
                               });
                             },
                             title: 'Choose brands',
@@ -1061,7 +1072,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           ],
                         ),
                         SizedBox(height: 8),
-                        Divider(),
                         SizedBox(height: 8),
                         Text("Monthly Sale", style: TextStyles.body(context: context, color: themeProvider.hintColor)),
                         SizedBox(height: 8),
@@ -1354,6 +1364,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   zone: zone,
                                   area: area,
                                   point: dealer,
+                                  division: division,
                                 );
 
                                 if (internetProvider.connected) {
@@ -1365,7 +1376,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                           content: Container(width: 128, height: 128, child: Center(child: CircularProgressIndicator())),
                                         );
                                       });
-                                  StreamedResponse response = await userProvider.saveOnline(point, files);
+                                  var response = await userProvider.saveOnline(point, files);
                                   Navigator.of(context).pop();
                                   if (response == null) {
                                     showDialog(
