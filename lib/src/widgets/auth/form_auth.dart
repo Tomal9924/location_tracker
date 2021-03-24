@@ -161,7 +161,7 @@ class _AuthFormState extends State<AuthForm> {
                         context: context,
                         builder: (context) => AlertDialog(
                               title: Text("Error"),
-                              content: Text(error.message.toString()),
+                              content: Text(error),
                             ));
                   }
                 }

@@ -72,6 +72,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   String _selectedisDealerTypes = "";
   String _selectedShopTypes = "";
   String _selectedSubShopTypes = "";
+  String division = "";
 
   TextEditingController cityVillageController = new TextEditingController();
   TextEditingController routeNameController = new TextEditingController();
@@ -145,7 +146,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
         backgroundColor: themeProvider.backgroundColor,
         elevation: 0,
         title: Text(
-          "JEAL Plotting",
+          "JEAL Plotting 2.0",
           style: TextStyles.title(context: context, color: themeProvider.accentColor),
         ),
         actions: [
@@ -203,6 +204,22 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                           visible: internetProvider.connected && userProvider.unSyncDataLength > 0,
                         ),
                         Visibility(child: SizedBox(height: 16), visible: internetProvider.connected && userProvider.unSyncDataLength > 0),
+                        SizedBox(height: 8),
+                        Text("Location", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
+                        SizedBox(height: 4),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: ListTile(
+                            tileColor: themeProvider.secondaryColor,
+                            leading: Icon(Icons.location_on_outlined),
+                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}",
+                                style: TextStyles.body(context: context, color: themeProvider.hintColor)),
+                            onTap: () {
+                              MapsLauncher.launchCoordinates(snapshot.data.latitude, snapshot.data.longitude);
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 8),
                         Text("Zone *",
                             style: TextStyles.caption(context: context, color: district.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         SizedBox(
@@ -239,6 +256,23 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                 title: "Choose a Zone",
                               ),
                         SizedBox(height: 8),
+                        Text("Division *",
+                            style: TextStyles.caption(context: context, color: division.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
+                        DropDownMenu(
+                          onSelect: (value) {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            setState(() {
+                              division = value;
+                            });
+                          },
+                          value: division,
+                          items: lookUpProvider.getAllDivision(nsm),
+                          text: lookUpProvider.divisionDisplayText(division, nsm),
+                          title: "Choose a Division",
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
                         Visibility(
                           visible: zone.isNotEmpty,
                           child: Text("Area *",
@@ -267,7 +301,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                         SizedBox(height: 8),
                         Visibility(
                           visible: area.isNotEmpty,
-                          child: Text("Dealer *",
+                          child: Text("Point *",
                               style: TextStyles.caption(context: context, color: dealer.isNotEmpty ? themeProvider.hintColor : themeProvider.errorColor)),
                         ),
                         Visibility(
@@ -290,22 +324,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                             title: "Choose a Dealer",
                           ),
                         ),
-                        SizedBox(height: 8),
-                        Text("Location", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
-                        SizedBox(height: 4),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: ListTile(
-                            tileColor: themeProvider.secondaryColor,
-                            leading: Icon(Icons.location_on_outlined),
-                            title: Text("${snapshot.data.latitude}, ${snapshot.data.longitude}",
-                                style: TextStyles.body(context: context, color: themeProvider.hintColor)),
-                            onTap: () {
-                              MapsLauncher.launchCoordinates(snapshot.data.latitude, snapshot.data.longitude);
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 8),
                         Divider(),
                         SizedBox(height: 8),
                         Text("District *",
@@ -1181,7 +1199,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                             ),
                           ],
                         ),
-                        SizedBox(width: 8),
+                        SizedBox(height: 8),
                         Text("Comment", style: TextStyles.caption(context: context, color: themeProvider.hintColor)),
                         SizedBox(height: 4),
                         TextField(
@@ -1313,7 +1331,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
 
                                 FloatingPoint point = FloatingPoint(
                                   id: DateTime.now().millisecondsSinceEpoch,
-                                  pointName: routeNameController.text,
+                                  routeName: routeNameController.text,
                                   routeDay: routeDay,
                                   shopName: distributorNameController.text,
                                   ownerName: ownerNameController.text,
@@ -1330,12 +1348,12 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   files: "",
                                   shopSubType: shopTypes,
                                   registeredName: registrationController.text.toString(),
-                                  competitorList: json.encode(competitorList),
+                                  competitorList: json.encode(items),
                                   thana: thana,
                                   comment: commentController.text.toString(),
                                   zone: zone,
                                   area: area,
-                                  dealer: dealer,
+                                  point: dealer,
                                 );
 
                                 if (internetProvider.connected) {
@@ -1498,7 +1516,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   Helper.alertValidationERROR(context: context, message: "* dealer/sub-dealer/shop is required");
                                 } else if (!distributorValidator.isValid || distributorNameController.text.isEmpty) {
                                   Helper.alertValidationERROR(context: context, message: "* ${distributorName.toLowerCase()} name is required");
-                                } /*else if (dealerTypes == "Shop" && shopTypes.isEmpty) {
+                                }
+                                /*else if (dealerTypes == "Shop" && shopTypes.isEmpty) {
                                   Helper.alertValidationERROR(context: context, message: "* shop type is required");
                                 }*/ /*else if (distributorName == "Shop" &&
                                     shopTypes == "Registered" &&

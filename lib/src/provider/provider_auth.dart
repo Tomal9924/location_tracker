@@ -41,7 +41,7 @@ class AuthProvider extends ChangeNotifier {
           user.username = username;
         }
         user.password = password;
-        user.token = "${result['token']}";
+        user.token = "bearer ${result['token']}";
         //user.expiresOn = DateTime.now().millisecondsSinceEpoch + result['expires_in'];
         updateUser();
         notifyListeners();
@@ -57,9 +57,10 @@ class AuthProvider extends ChangeNotifier {
   Future<Response> userInfo() async {
     Map<String, String> headerParams = {
       "Authorization": user.token,
+      "username": user.username,
     };
 
-    Response response = await get(Api.userInfo(user.username != null && user.username.isNotEmpty ? user.username : user.email), headers: headerParams);
+    Response response = await get(Api.userInfo, headers: headerParams);
     switch (response.statusCode) {
       case 200:
         Map<String, dynamic> result = Map<String, dynamic>.from(json.decode(response.body));

@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'package:location_tracker/src/model/db/area.dart';
 import 'package:location_tracker/src/model/db/dealer.dart';
 import 'package:location_tracker/src/model/db/district.dart';
+import 'package:location_tracker/src/model/db/division.dart';
 import 'package:location_tracker/src/model/db/thana.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/model/db/zone.dart';
@@ -22,6 +23,7 @@ class LookUpProvider extends ChangeNotifier {
   Box<Zone> zoneBox;
   Box<Area> areaBox;
   Box<Dealer> dealerBox;
+  Box<Division> divisionBox;
 
   init() {
     if (user == null) {
@@ -31,6 +33,7 @@ class LookUpProvider extends ChangeNotifier {
       zoneBox = Hive.box("zones");
       areaBox = Hive.box("areas");
       dealerBox = Hive.box("dealers");
+      divisionBox = Hive.box("divisions");
       if (userBox.length > 0) {
         user = userBox.getAt(0);
       } else {
@@ -45,8 +48,14 @@ class LookUpProvider extends ChangeNotifier {
     return List.generate(zones.length, (index) => zones[index].toDropDownItem);
   }
 
-  List<DropDownItem> get getAllDistricts {
-    List<District> districts = districtBox.values.toList();
+  List<DropDownItem> get getAllDivision {
+    List<Division> divisions = divisionBox.values.toList();
+    divisions.sort((a, b) => a.displayText.compareTo(b.displayText));
+    return List.generate(divisions.length, (index) => divisions[index].toDropDownItem);
+  }
+
+  List<DropDownItem> getAllDistricts(String divisions) {
+    List<District> districts = districtBox.values.where((element) => element.parentDataKey == divisions).toList();
     districts.sort((a, b) => a.displayText.compareTo(b.displayText));
     return List.generate(districts.length, (index) => districts[index].toDropDownItem);
   }
@@ -80,13 +89,13 @@ class LookUpProvider extends ChangeNotifier {
     }
     Map<String, String> headerParams = {
       "Authorization": user.token,
-      "key": Api.lookUpKeys,
+      "datakey": Api.lookUpKeys,
     };
 
     Response response = await get(Api.lookUp, headers: headerParams);
     if (response.statusCode == 200) {
-      Map<String, dynamic> result = Map<String, dynamic>.from(json.decode(response.body));
-      result["data"].forEach((item) {
+      List<Map<String, dynamic>> result = List<Map<String, dynamic>>.from(json.decode(response.body));
+      result.forEach((item) {
         if (item["IsActive"] as bool) {
           switch (item["DataKey"]) {
             case "District":
@@ -119,6 +128,12 @@ class LookUpProvider extends ChangeNotifier {
                 dealerBox.add(dealer);
               }
               break;
+            case "Division":
+              Division division = Division.fromJSON(item);
+              if (!isDivisionExists(division.dataValue)) {
+                divisionBox.add(division);
+              }
+              break;
           }
         }
       });
@@ -140,10 +155,22 @@ class LookUpProvider extends ChangeNotifier {
     }
   }
 
-  String districtDisplayText(String value) {
+  String districtDisplayText(String value, String districts) {
     if (isDistrictExists(value)) {
       try {
-        return getAllDistricts.firstWhere((element) => element.value == value).text;
+        return getAllDistricts(districts).firstWhere((element) => element.value == value).text;
+      } catch (error) {
+        return "Select one";
+      }
+    } else {
+      return "Select one";
+    }
+  }
+
+  String divisionDisplayText(String value) {
+    if (isDistrictExists(value)) {
+      try {
+        return getAllDivision.firstWhere((element) => element.value == value).text;
       } catch (error) {
         return "Select one";
       }
@@ -195,6 +222,10 @@ class LookUpProvider extends ChangeNotifier {
 
   bool isZoneExists(String value) {
     return zoneBox.values.toList().where((element) => element.dataValue == value).isNotEmpty;
+  }
+
+  bool isDivisionExists(String value) {
+    return divisionBox.values.toList().where((element) => element.dataValue == value).isNotEmpty;
   }
 
   bool isAreaExists(String value) {

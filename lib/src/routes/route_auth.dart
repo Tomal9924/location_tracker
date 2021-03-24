@@ -41,6 +41,16 @@ class AuthRoute extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 AuthForm(),
+                SizedBox(
+                  height: 48,
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Text(
+                    "Version 2.0.0",
+                    style: TextStyles.caption(context: context, color: themeProvider.hintColor),
+                  ),
+                )
               ],
             ),
           ),

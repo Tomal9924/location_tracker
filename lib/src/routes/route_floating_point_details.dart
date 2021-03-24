@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:location_tracker/src/model/floating_point_details.dart';
 import 'package:location_tracker/src/provider/provider_floating_point.dart';
@@ -17,14 +16,14 @@ class FloatingPointDetailsRoute extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final floatingPointProvider = Provider.of<FloatingPointProvider>(context);
-    final String guid = ModalRoute.of(context).settings.arguments as String;
-    final FloatingPointDetails details = floatingPointProvider.findById(guid);
+    final int id = ModalRoute.of(context).settings.arguments as int;
+    final FloatingPointDetails details = floatingPointProvider.findById(id);
 
     floatingPointProvider.init();
 
     Future.delayed(Duration(milliseconds: 0), () {
-      if (!floatingPointProvider.isDetailsNetworking && !floatingPointProvider.isExists(guid)) {
-        floatingPointProvider.loadDetails(guid);
+      if (!floatingPointProvider.isDetailsNetworking && !floatingPointProvider.isExists(id)) {
+        floatingPointProvider.loadDetails(id);
       }
     });
 
@@ -74,22 +73,13 @@ class FloatingPointDetailsRoute extends StatelessWidget {
                   title: Text(details.ownerPhone, style: TextStyles.body(context: context, color: themeProvider.textColor)),
                   dense: true,
                   visualDensity: VisualDensity.compact,
-                  onTap: (){
+                  onTap: () {
                     launch("tel:${details.ownerPhone}");
                   },
                 ),
-                Visibility(
-                  visible: details.isDealer,
-                  child: ListTile(
-                    leading: Icon(Icons.admin_panel_settings_outlined, color: themeProvider.hintColor),
-                    title: Text("Dealer", style: TextStyles.body(context: context, color: themeProvider.textColor)),
-                    dense: true,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
                 ListTile(
                   leading: Icon(Icons.location_on_outlined, color: themeProvider.hintColor),
-                  title: Text(details.thana??"", style: TextStyles.body(context: context, color: themeProvider.textColor)),
+                  title: Text(details.thana ?? "", style: TextStyles.body(context: context, color: themeProvider.textColor)),
                   subtitle: Text(details.district, style: TextStyles.body(context: context, color: themeProvider.textColor)),
                   dense: true,
                   visualDensity: VisualDensity.compact,
@@ -99,7 +89,7 @@ class FloatingPointDetailsRoute extends StatelessWidget {
                   title: Text("${details.lat}, ${details.lng}", style: TextStyles.body(context: context, color: themeProvider.textColor)),
                   dense: true,
                   visualDensity: VisualDensity.compact,
-                  onTap: (){
+                  onTap: () {
                     MapsLauncher.launchCoordinates(details.lat, details.lng);
                   },
                 ),
@@ -125,18 +115,18 @@ class FloatingPointDetailsRoute extends StatelessWidget {
                       padding: const EdgeInsets.all(0),
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
-                      separatorBuilder: (context, index) => SizedBox(width: 16,),
+                      separatorBuilder: (context, index) => SizedBox(
+                        width: 16,
+                      ),
                       itemBuilder: (context, index) {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
                             width: 256,
                             height: 256,
-                            decoration: BoxDecoration(
-                              color: themeProvider.secondaryColor
-                            ),
+                            decoration: BoxDecoration(color: themeProvider.secondaryColor),
                             child: Image.network(
-                              Api.fileUrl(details.files[index]),
+                              Api.fileUrl(details.files[index]).replaceAll("v1/wwwroot/", ""),
                               width: 256,
                               height: 256,
                               fit: BoxFit.cover,

@@ -27,7 +27,7 @@ class UserAdapter extends TypeAdapter<User> {
       lastUpdatedBy: fields[8] as String,
       lastUpdatedDate: fields[9] as String,
       companyId: fields[10] as String,
-      rowState: fields[11] as String,
+      rowState: fields[11] as int,
       isAuthenticated: fields[12] as bool,
       token: fields[13] as String,
     );
@@ -69,9 +69,5 @@ class UserAdapter extends TypeAdapter<User> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is UserAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is UserAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

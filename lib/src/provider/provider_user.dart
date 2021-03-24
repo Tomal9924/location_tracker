@@ -47,11 +47,11 @@ class UserProvider extends ChangeNotifier {
         isNetworkingCompetitors = true;
         notifyListeners();
       }
-      var headers = {"authorization": user.token};
+      var headers = {"Authorization": user.token};
 
       Response response = await get(Api.getCompetitors, headers: headers);
       if (response.statusCode == 200) {
-        List<Map<String, dynamic>> result = List<Map<String, dynamic>>.from(json.decode(response.body)["cmpList"]);
+        List<Map<String, dynamic>> result = List<Map<String, dynamic>>.from(json.decode(response.body));
         result.forEach((element) {
           Competitor competitor = Competitor.fromJSON(element);
           if (!isCompetitorExists(competitor.competitorId)) {
@@ -71,14 +71,24 @@ class UserProvider extends ChangeNotifier {
     try {
       var headers = {
         "Authorization": user.token,
+      };
+
+      var request = MultipartRequest(
+        'POST',
+        Uri.parse(Api.saveData),
+      );
+      request.fields.addAll({
+        "Lat": point.lat.toString(),
+        "Lng": point.lng.toString(),
         "UserId": user.guid,
-        "PointName": point.pointName.toString().trim(),
-        "RouteDay": point.routeDay.trim(),
+        "Zone": point.zone.trim(),
+        "Area": point.area.trim(),
+        "PointName": point.point.trim(),
         "District": point.district.trim(),
         "Thana": point.thana.trim(),
         "CityVillage": point.city.trim(),
-        "Lat": point.lat.toString(),
-        "Lng": point.lng.toString(),
+        "RouteName": point.routeName.toString().trim(),
+        "RouteDay": point.routeDay.trim(),
         "LocationType": point.isDealer.trim(),
         "ShopType": point.shopSubType.trim(),
         "RegisteredName": point.registeredName.toString().trim(),
@@ -89,26 +99,19 @@ class UserProvider extends ChangeNotifier {
         "MonthlySaleRf": point.monthlySaleRf.trim(),
         "MonthlySaleAc": point.monthlySaleAc.trim(),
         "ShowroomSize": point.showroomSize.trim(),
-        "CompetitorList": point.competitorList.trim(),
+        "CompetitorList": json.encode(json.decode(point.competitorList)),
         "Comment": point.comment.toString().trim(),
-        "Zone": point.zone.trim(),
-        "Area": point.area.trim(),
-        "Dealer": point.dealer.trim(),
-      };
-
-      var request = MultipartRequest(
-        'POST',
-        Uri.parse(Api.saveData),
-      );
+      });
       for (var file in files) {
         request.files.add(
-          await MultipartFile.fromPath("${DateTime.now().millisecondsSinceEpoch}.png", file.path),
+          await MultipartFile.fromPath("ListFiles", file.path),
         );
       }
 
       request.headers.addAll(Map<String, String>.from(headers));
 
-      var response = await request.send();
+      StreamedResponse response = await request.send();
+      //var response = await request.send();
       return response;
     } catch (error) {
       print(error);
@@ -120,16 +123,19 @@ class UserProvider extends ChangeNotifier {
     try {
       var headers = {
         "Authorization": user.token,
+        "Lat": point.lat.toString(),
+        "Lng": point.lng.toString(),
         "UserId": user.guid,
-        "PointName": point.pointName.toString().trim(),
-        "RouteDay": point.routeDay.trim(),
+        "Zone": point.zone.trim(),
+        "Area": point.area.trim(),
+        "PointName": point.point.trim(),
         "District": point.district.trim(),
         "Thana": point.thana.trim(),
         "CityVillage": point.city.trim(),
-        "Lat": point.lat.toString(),
-        "Lng": point.lng.toString(),
-        "LocationType": point.isDealer.toString().trim(),
-        "ShopType": point.shopSubType.toString().trim(),
+        "RouteName": point.routeName.toString().trim(),
+        "RouteDay": point.routeDay.trim(),
+        "LocationType": point.isDealer.trim(),
+        "ShopType": point.shopSubType.trim(),
         "RegisteredName": point.registeredName.toString().trim(),
         "ShopName": point.shopName.trim(),
         "OwnerName": point.ownerName.trim(),
@@ -138,11 +144,8 @@ class UserProvider extends ChangeNotifier {
         "MonthlySaleRf": point.monthlySaleRf.trim(),
         "MonthlySaleAc": point.monthlySaleAc.trim(),
         "ShowroomSize": point.showroomSize.trim(),
-        "CompetitorList": point.competitorList.trim(),
+        "CompetitorList": json.encode(json.decode(point.competitorList.trim())),
         "Comment": point.comment.toString().trim(),
-        "Zone": point.zone.trim(),
-        "Area": point.area.trim(),
-        "Dealer": point.dealer.trim(),
       };
 
       var request = MultipartRequest(

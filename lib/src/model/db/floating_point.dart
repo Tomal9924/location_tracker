@@ -13,7 +13,7 @@ class FloatingPoint {
   @HiveField(2)
   String city;
   @HiveField(3)
-  String pointName;
+  String routeName;
   @HiveField(4)
   double lat;
   @HiveField(5)
@@ -53,13 +53,13 @@ class FloatingPoint {
   @HiveField(22)
   String area;
   @HiveField(23)
-  String dealer;
+  String point;
 
   FloatingPoint({
     @required this.id,
     @required this.district,
     @required this.city,
-    @required this.pointName,
+    @required this.routeName,
     @required this.lat,
     @required this.lng,
     @required this.isDealer,
@@ -79,6 +79,6 @@ class FloatingPoint {
     @required this.comment,
     @required this.zone,
     @required this.area,
-    @required this.dealer,
+    @required this.point,
   });
 }

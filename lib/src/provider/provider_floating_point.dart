@@ -11,14 +11,16 @@ import 'package:location_tracker/src/utils/api.dart';
 
 class FloatingPointProvider extends ChangeNotifier {
   Map<String, FloatingPoint> items = HashMap<String, FloatingPoint>();
-  Map<String, FloatingPointDetails> itemDetails = HashMap<String, FloatingPointDetails>();
+  Map<int, FloatingPointDetails> itemDetails = HashMap<int, FloatingPointDetails>();
 
   bool isNetworking = false;
   bool isDetailsNetworking = false;
-  bool hasCalled = false;
+  bool isPaginating = false;
   User user;
   Box<User> userBox;
 
+  int pageNo = 0;
+  int totalSize = -1;
   init() {
     if (user == null) {
       userBox = Hive.box("users");
@@ -32,30 +34,34 @@ class FloatingPointProvider extends ChangeNotifier {
 
   List<FloatingPoint> getAll() {
     List<FloatingPoint> list = items.values.toList();
-    list.sort((a,b)=>b.id.compareTo(a.id));
+    list.sort((a, b) => b.id.compareTo(a.id));
     return list;
   }
 
-  FloatingPointDetails findById(String guid) => itemDetails[guid];
+  FloatingPointDetails findById(int id) => itemDetails[id];
 
-  bool isExists(String guid) => itemDetails.containsKey(guid);
+  bool isExists(int id) => itemDetails.containsKey(id);
 
   Future<void> loadFloatingPoints() async {
     if (isNetworking) {
       return;
     } else {
+      pageNo = 1;
       isNetworking = true;
       notifyListeners();
     }
     Map<String, String> headers = {
-      "authorization": user.token,
-      "userId": user.guid,
+      "Authorization": user.token,
+      "pageno": "1",
+      "pagesize": "50",
     };
 
     Response response = await get(Api.locationPoints, headers: headers);
     items = {};
     if (response.statusCode == 200) {
-      List<Map<String, dynamic>> list = List<Map<String, dynamic>>.from(json.decode(response.body)["fpList"]);
+      items = {};
+      totalSize = json.decode(response.body)["Default"][0]["TotalCount"] as int;
+      List<Map<String, dynamic>> list = List<Map<String, dynamic>>.from(json.decode(response.body)["Default1"]);
       list.forEach((element) {
         FloatingPoint point = FloatingPoint.fromJSON(element);
         items[point.guid] = point;
@@ -63,36 +69,63 @@ class FloatingPointProvider extends ChangeNotifier {
       isNetworking = false;
       notifyListeners();
     }
-    hasCalled = true;
     return response.statusCode;
   }
 
-  Future<void> loadDetails(String guid) async {
-    if (isDetailsNetworking) {
-      return;
-    } else {
-      isDetailsNetworking = true;
+  void paginate() async {
+    if (getAll().length < totalSize) {
+      if (!isPaginating) {
+        isPaginating = true;
+        notifyListeners();
+        Map<String, String> headers = {
+          "authorization": user.token,
+          "pageno": (++pageNo).toString(),
+          "pagesize": "50",
+        };
+
+        Response response = await get(Api.locationPoints, headers: headers);
+        if (response.statusCode == 200) {
+          List<Map<String, dynamic>> list = List<Map<String, dynamic>>.from(json.decode(response.body)["Default1"]);
+          list.forEach((element) {
+            FloatingPoint point = FloatingPoint.fromJSON(element);
+            items[point.guid] = point;
+          });
+          isPaginating = false;
+          notifyListeners();
+        }
+      }
+    }
+  }
+
+  Future<void> loadDetails(int id) async {
+    try {
+      if (isDetailsNetworking) {
+        return;
+      } else {
+        isDetailsNetworking = true;
+        notifyListeners();
+      }
+      Map<String, String> headers = {
+        "Id": id.toString(),
+        "Authorization": user.token,
+      };
+
+      Response response = await get(Api.locationPointsDetails, headers: headers);
+      if (response.statusCode == 200) {
+        FloatingPointDetails item = FloatingPointDetails.fromJSON(json.decode(response.body));
+
+        itemDetails[item.id] = item;
+      }
+      isDetailsNetworking = false;
       notifyListeners();
+      return response.statusCode;
+    } catch (error) {
+      print(error);
     }
-    Map<String, String> headers = {
-      "authorization": user.token,
-      "locationPointId": guid,
-    };
-
-    Response response = await get(Api.locationPointsDetails, headers: headers);
-    if (response.statusCode == 200) {
-      FloatingPointDetails item = FloatingPointDetails.fromJSON(json.decode(response.body));
-
-      itemDetails[item.guid] = item;
-    }
-    isDetailsNetworking = false;
-    notifyListeners();
-    return response.statusCode;
   }
 
   void destroy() {
     isNetworking = false;
-    hasCalled = false;
     user = null;
     items = {};
     notifyListeners();

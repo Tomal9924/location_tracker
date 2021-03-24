@@ -20,7 +20,7 @@ class FloatingPointAdapter extends TypeAdapter<FloatingPoint> {
       id: fields[0] as int,
       district: fields[1] as String,
       city: fields[2] as String,
-      pointName: fields[3] as String,
+      routeName: fields[3] as String,
       lat: fields[4] as double,
       lng: fields[5] as double,
       isDealer: fields[6] as String,
@@ -40,7 +40,7 @@ class FloatingPointAdapter extends TypeAdapter<FloatingPoint> {
       comment: fields[20] as String,
       zone: fields[21] as String,
       area: fields[22] as String,
-      dealer: fields[23] as String,
+      point: fields[23] as String,
     );
   }
 
@@ -55,7 +55,7 @@ class FloatingPointAdapter extends TypeAdapter<FloatingPoint> {
       ..writeByte(2)
       ..write(obj.city)
       ..writeByte(3)
-      ..write(obj.pointName)
+      ..write(obj.routeName)
       ..writeByte(4)
       ..write(obj.lat)
       ..writeByte(5)
@@ -95,16 +95,12 @@ class FloatingPointAdapter extends TypeAdapter<FloatingPoint> {
       ..writeByte(22)
       ..write(obj.area)
       ..writeByte(23)
-      ..write(obj.dealer);
+      ..write(obj.point);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FloatingPointAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is FloatingPointAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

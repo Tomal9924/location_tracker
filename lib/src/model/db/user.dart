@@ -26,7 +26,7 @@ class User {
   @HiveField(10)
   String companyId;
   @HiveField(11)
-  String rowState;
+  int rowState;
   @HiveField(12)
   bool isAuthenticated;
   @HiveField(13)
@@ -52,8 +52,8 @@ class User {
     guid = result["UserId"];
     username = result["UserName"];
     email = result["EmailAddress"];
-    isActive = result["emp"]["IsActive"] ?? false;
-    isDeleted = result["emp"]["IsDeleted"] ?? false;
+    isActive = result["IsActive"] ?? false;
+    isDeleted = result["IsDeleted"] ?? false;
     lastUpdatedBy = result["LastUpdatedBy"];
     lastUpdatedDate = result["LastUpdatedDate"];
     companyId = result["CompanyId"];
