@@ -8,8 +8,7 @@ class FormValidator {
   String validationMessage;
   FormType type;
 
-  initialize(
-      {@required TextEditingController controller, @required FormType type}) {
+  initialize({@required TextEditingController controller, @required FormType type}) {
     this.controller = controller;
     this.type = type;
   }
@@ -18,14 +17,14 @@ class FormValidator {
     switch (type) {
       case FormType.name:
         isValid = controller.text.isNotEmpty;
-        validationMessage = isValid ? null : "***required";
+        validationMessage = isValid ? null : "*username is required";
         break;
       case FormType.phone:
         // TODO: Handle this case.
         break;
       case FormType.username:
         isValid = controller.text.isNotEmpty;
-        validationMessage = isValid ? null : "***required";
+        validationMessage = isValid ? null : "*username is required";
         break;
       case FormType.email:
         // TODO: Handle this case.
@@ -39,7 +38,7 @@ class FormValidator {
             ? null
             : controller.text.isNotEmpty
                 ? "password length should be at least 6 characters"
-                : "password is required";
+                : "*password is required";
         break;
     }
   }

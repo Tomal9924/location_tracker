@@ -112,6 +112,7 @@ class LookUpProvider extends ChangeNotifier {
               break;
             case "Thana":
               Thana thana = Thana.fromJSON(item);
+              print(thana.dataValue);
               if (!isThanaExists(thana.dataValue)) {
                 thanaBox.add(thana);
               }

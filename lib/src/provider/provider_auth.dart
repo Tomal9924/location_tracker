@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/utils/api.dart';
+import 'package:location_tracker/src/utils/constants.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 class AuthProvider extends ChangeNotifier {
   User user;
@@ -24,27 +28,57 @@ class AuthProvider extends ChangeNotifier {
   Future<Response> authenticate(String username, String password) async {
     init();
 
-    Map<String, String> bodyParams = {
-      "UserName": username,
-      "Password": password,
-    };
-    Map<String, String> headerParams = {
+    Map<String, String> headers = {
       "Content-Type": "application/json",
     };
-    Response response = await post(Api.token, body: json.encode(bodyParams), headers: headerParams);
+
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    String model = "";
+    String brand = "";
+    String version = "";
+    final SmsAutoFill _autoFill = SmsAutoFill();
+    final phone = await _autoFill.hint ?? "";
+    if (Platform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      model = androidInfo.model;
+      brand = androidInfo.manufacturer;
+      version = androidInfo.version.release;
+    } else if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      model = iosInfo.model;
+      brand = "Apple";
+      version = iosInfo.utsname.release;
+    }
+
+    Map<String, String> bodyParams = {
+      "UserName": username.trim(),
+      "Password": password.trim(),
+      "Model": model.trim(),
+      "Brand": brand.trim(),
+      "MAC": version,
+      "IMEI": appVersion,
+      "PhoneNumber": phone.trim(),
+    };
+
+    Response response = await post(Api.token, headers: headers, body: json.encode(bodyParams));
     switch (response.statusCode) {
       case 200:
         Map<String, dynamic> result = Map<String, dynamic>.from(json.decode(response.body));
-        if (username.contains("@")) {
-          user.email = username;
+        if (result["StatusCode"] == 200) {
+          if (username.contains("@")) {
+            user.email = username;
+          } else {
+            user.username = username;
+          }
+          user.password = password;
+          user.phone = phone;
+          user.token = "bearer ${result['token']}";
+          user = User.fromAuth(result["UserInfo"], user);
+          updateUser();
+          notifyListeners();
         } else {
-          user.username = username;
+          return response;
         }
-        user.password = password;
-        user.token = "bearer ${result['token']}";
-        //user.expiresOn = DateTime.now().millisecondsSinceEpoch + result['expires_in'];
-        updateUser();
-        notifyListeners();
         break;
       default:
         user.isAuthenticated = false;

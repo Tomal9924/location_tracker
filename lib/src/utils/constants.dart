@@ -9,7 +9,7 @@ enum FormType {
   password,
 }
 
-const String appVersion = "v1.0";
+const String appVersion = "v2.1";
 const List<Color> themeColors = [
   Colors.purple,
   Colors.deepPurple,

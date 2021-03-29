@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
@@ -9,6 +10,7 @@ import 'package:location_tracker/src/model/db/floating_point.dart';
 import 'package:location_tracker/src/model/db/user.dart';
 import 'package:location_tracker/src/model/drop_down_item.dart';
 import 'package:location_tracker/src/utils/api.dart';
+import 'package:location_tracker/src/utils/constants.dart';
 
 class UserProvider extends ChangeNotifier {
   User user;
@@ -72,7 +74,21 @@ class UserProvider extends ChangeNotifier {
       var headers = {
         "Authorization": user.token,
       };
-
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      String model = "";
+      String brand = "";
+      String version = "";
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        model = androidInfo.model;
+        brand = androidInfo.manufacturer;
+        version = androidInfo.version.release;
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        model = iosInfo.model;
+        brand = "Apple";
+        version = iosInfo.utsname.release;
+      }
       var request = MultipartRequest(
         'POST',
         Uri.parse(Api.saveData),
@@ -102,6 +118,11 @@ class UserProvider extends ChangeNotifier {
         "ListLocationPointCompetitor": json.encode(json.decode(point.competitorList)),
         "Comment": point.comment.toString().trim(),
         "Division": point.division.trim(),
+        "Model": model.trim(),
+        "Brand": brand.trim(),
+        "MAC": version.trim(),
+        "IMEI": appVersion.trim(),
+        "PhoneNumber": user.phone.trim(),
       });
       for (var file in files) {
         request.files.add(

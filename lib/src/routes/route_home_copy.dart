@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
@@ -35,6 +36,8 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   final picker = ImagePicker();
   bool isLoading = true;
 
+  String macID = '';
+  String imeiNumber = '';
   String routeDay = "";
   String district = "";
   String thana = "";
@@ -72,7 +75,6 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
   String _selectedShopTypes = "";
   String _selectedSubShopTypes = "";
   String division = "";
-
   TextEditingController cityVillageController = new TextEditingController();
   TextEditingController routeNameController = new TextEditingController();
   TextEditingController distributorNameController = new TextEditingController();
@@ -146,7 +148,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
         backgroundColor: themeProvider.backgroundColor,
         elevation: 0,
         title: Text(
-          "JEAL Plotting (v2.0)",
+          "JEAL Plotting $appVersion",
           style: TextStyles.title(context: context, color: themeProvider.accentColor),
         ),
         actions: [
@@ -334,7 +336,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                             value: dealer,
                             items: lookUpProvider.getAllDealer(area),
                             text: lookUpProvider.dealerDisplayText(dealer, area),
-                            title: "Choose a Dealer",
+                            title: "Choose a Point",
                           ),
                         ),
                         SizedBox(height: 8),
@@ -486,7 +488,7 @@ class _HomeRouteCopyState extends State<HomeRouteCopy> {
                                   ),
                                   DropDownMenu(
                                       value: routeDay,
-                                      text: routeDay,
+                                      text: routeDay.isEmpty ? "Select one" : routeDay,
                                       items: routeDays,
                                       title: "Select route day",
                                       onSelect: (item) {

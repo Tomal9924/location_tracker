@@ -31,6 +31,8 @@ class User {
   bool isAuthenticated;
   @HiveField(13)
   String token;
+  @HiveField(14)
+  String phone;
 
   User(
       {this.id,
@@ -58,6 +60,7 @@ class User {
     lastUpdatedDate = result["LastUpdatedDate"];
     companyId = result["CompanyId"];
     rowState = result["RowState"];
+    phone = old.phone;
     isAuthenticated = true;
     token = old.token;
     password = old.password;

@@ -28,6 +28,8 @@ dependencies:
   intl:
   data_connection_checker:
   flushbar: 1.10.0
+  device_info:
+  sms_autofill:
 
 dev_dependencies:
   flutter_test:

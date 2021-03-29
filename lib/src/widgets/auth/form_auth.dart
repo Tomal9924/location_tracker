@@ -127,17 +127,20 @@ class _AuthFormState extends State<AuthForm> {
 
                     Response authResponse = await authProvider.authenticate(usernameController.text, passwordController.text);
                     Map<String, dynamic> authResult = Map<String, dynamic>.from(json.decode(authResponse.body));
-                    if (authResult.containsKey("StatusCode")) {
-                      Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    if (authResponse.statusCode == 200) {
                       switch (authResult["StatusCode"] as int) {
+                        case 200:
+                          floatingPointProvider.destroy();
+                          Navigator.of(context).pushReplacementNamed(HomeRouteCopy().route, arguments: authProvider.user.guid);
+                          break;
                         case 400:
                         case 401:
                           showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
                                     title: Text("Auth Error", style: TextStyles.subTitle(context: context, color: themeProvider.errorColor)),
-                                    content: Text("Username or password or both are incorrect",
-                                        style: TextStyles.body(context: context, color: themeProvider.errorColor)),
+                                    content: Text(authResult["Message"] ?? "", style: TextStyles.body(context: context, color: themeProvider.errorColor)),
                                   ));
                           break;
                         case 500:
@@ -145,36 +148,26 @@ class _AuthFormState extends State<AuthForm> {
                               context: context,
                               builder: (context) => AlertDialog(
                                     title: Text("Auth Error", style: TextStyles.subTitle(context: context, color: themeProvider.errorColor)),
-                                    content: Text("Internal server error or username is wrong.",
-                                        style: TextStyles.body(context: context, color: themeProvider.errorColor)),
+                                    content: Text("Internal server error", style: TextStyles.body(context: context, color: themeProvider.errorColor)),
                                   ));
                           break;
                         default:
                           showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                    title: Text("Error", style: TextStyles.subTitle(context: context, color: themeProvider.errorColor)),
-                                    content: Text("Something went wrong", style: TextStyles.body(context: context, color: themeProvider.errorColor)),
+                                    title: Text("Auth Error", style: TextStyles.subTitle(context: context, color: themeProvider.errorColor)),
+                                    content: Text("Internal server error", style: TextStyles.body(context: context, color: themeProvider.errorColor)),
                                   ));
                           break;
                       }
                     } else {
-                      Response userResponse = await authProvider.userInfo();
                       Navigator.of(context).pop();
-                      switch (userResponse.statusCode) {
-                        case 200:
-                          floatingPointProvider.destroy();
-                          Navigator.of(context).pushReplacementNamed(HomeRouteCopy().route, arguments: authProvider.user.guid);
-                          break;
-                        default:
-                          showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                    title: Text("Profile fetching Error"),
-                                    content: Text(userResponse.body),
-                                  ));
-                          break;
-                      }
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                                title: Text("Auth Error", style: TextStyles.subTitle(context: context, color: themeProvider.errorColor)),
+                                content: Text("Internal server error", style: TextStyles.body(context: context, color: themeProvider.errorColor)),
+                              ));
                     }
                   } catch (error) {
                     Navigator.of(context).pop();
